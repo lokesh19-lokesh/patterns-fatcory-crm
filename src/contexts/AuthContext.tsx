@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserProfile, Company, UserRole } from '../types';
+import { hasRolePermission, PermissionAction } from '../lib/permissions';
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -10,7 +11,7 @@ interface AuthContextType {
   login: (email: string, role?: UserRole) => Promise<void>;
   logout: () => void;
   switchRole: (newRole: UserRole) => void;
-  hasPermission: (permission: string) => boolean;
+  hasPermission: (permission: PermissionAction) => boolean;
 }
 
 const DEFAULT_COMPANY: Company = {
@@ -104,10 +105,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const hasPermission = (perm: string) => {
+  const hasPermission = (permission: PermissionAction): boolean => {
     if (!user) return false;
-    if (user.role === 'Super Admin' || user.role === 'Company Admin') return true;
-    return user.permissions?.includes(perm) || false;
+    return hasRolePermission(role, permission);
   };
 
   return (

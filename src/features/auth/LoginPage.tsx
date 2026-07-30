@@ -130,14 +130,17 @@ export const LoginPage: React.FC = () => {
                 onChange={(e) => setSelectedRole(e.target.value as UserRole)}
                 className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-lg p-2 text-xs font-semibold focus:outline-none focus:border-sky-500"
               >
-                <option value="Company Admin">Company Admin (Full Access)</option>
+                <option value="Super Admin">Super Admin (God Mode — All Tenants)</option>
+                <option value="Company Admin">Company Admin (Full Tenant Access)</option>
+                <option value="Manager">Manager (Operations & Teams)</option>
                 <option value="Sales Executive">Sales Executive (Leads & Orders)</option>
                 <option value="Purchase Manager">Purchase Manager (POs & Suppliers)</option>
                 <option value="Warehouse Manager">Warehouse Manager (Stock & Inventory)</option>
+                <option value="HR">HR (Payroll & Attendance)</option>
                 <option value="Accountant">Accountant (GST Invoices & P&L)</option>
-                <option value="HR">HR Manager (Payroll & Attendance)</option>
                 <option value="Driver">Driver (Delivery Dispatch & GPS)</option>
                 <option value="Customer">Customer (Client Portal & Bills)</option>
+                <option value="Supplier">Supplier (PO Viewer & Products)</option>
               </select>
             </div>
 

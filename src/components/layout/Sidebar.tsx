@@ -21,11 +21,25 @@ import {
   Settings,
   ShieldCheck,
   LogOut,
-  ChevronDown,
   Layers,
+  LucideIcon,
+  Lock,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { UserRole } from '../../types';
+import { PermissionAction } from '../../lib/permissions';
+
+interface NavItem {
+  name: string;
+  path: string;
+  icon: LucideIcon;
+  requiredPermission: PermissionAction;
+}
+
+interface NavGroup {
+  title: string;
+  items: NavItem[];
+}
 
 interface SidebarProps {
   isOpen: boolean;
@@ -33,51 +47,51 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
-  const { user, company, role, switchRole, logout } = useAuth();
+  const { user, company, role, switchRole, logout, hasPermission } = useAuth();
 
-  const navGroups = [
+  const navGroups: NavGroup[] = [
     {
       title: 'CORE OPERATIONAL HQ',
       items: [
-        { name: 'Dashboard', path: '/app/dashboard', icon: LayoutDashboard },
-        { name: 'Company & Branches', path: '/app/company', icon: Building2 },
-        { name: 'CRM & Lead Pipeline', path: '/app/crm', icon: TrendingUp },
+        { name: 'Dashboard', path: '/app/dashboard', icon: LayoutDashboard, requiredPermission: 'view_dashboard' },
+        { name: 'Company & Branches', path: '/app/company', icon: Building2, requiredPermission: 'manage_company' },
+        { name: 'CRM & Lead Pipeline', path: '/app/crm', icon: TrendingUp, requiredPermission: 'view_crm' },
       ],
     },
     {
       title: 'PARTNERS & MATERIAL MASTER',
       items: [
-        { name: 'Customers & Credit', path: '/app/customers', icon: Users },
-        { name: 'Suppliers & Vendors', path: '/app/suppliers', icon: Truck },
-        { name: 'Products & HSN Tax', path: '/app/products', icon: Package },
-        { name: 'Multi-Warehouse Inventory', path: '/app/inventory', icon: Boxes },
+        { name: 'Customers & Credit', path: '/app/customers', icon: Users, requiredPermission: 'view_customers' },
+        { name: 'Suppliers & Vendors', path: '/app/suppliers', icon: Truck, requiredPermission: 'view_suppliers' },
+        { name: 'Products & HSN Tax', path: '/app/products', icon: Package, requiredPermission: 'view_products' },
+        { name: 'Multi-Warehouse Inventory', path: '/app/inventory', icon: Boxes, requiredPermission: 'view_inventory' },
       ],
     },
     {
       title: 'COMMERCIAL & LOGISTICS',
       items: [
-        { name: 'Procurement (PO/GRN)', path: '/app/purchase', icon: ShoppingCart },
-        { name: 'Sales & Quotations', path: '/app/sales', icon: FileText },
-        { name: 'GST Billing Engine', path: '/app/billing', icon: Receipt },
-        { name: 'Delivery Dispatch & GPS', path: '/app/delivery', icon: MapPin },
+        { name: 'Procurement (PO/GRN)', path: '/app/purchase', icon: ShoppingCart, requiredPermission: 'view_purchase' },
+        { name: 'Sales & Quotations', path: '/app/sales', icon: FileText, requiredPermission: 'view_sales' },
+        { name: 'GST Billing Engine', path: '/app/billing', icon: Receipt, requiredPermission: 'view_billing' },
+        { name: 'Delivery Dispatch & GPS', path: '/app/delivery', icon: MapPin, requiredPermission: 'view_delivery' },
       ],
     },
     {
       title: 'PROJECTS & WORKFORCE',
       items: [
-        { name: 'Project & BOQ Manager', path: '/app/projects', icon: HardHat },
-        { name: 'Employees & HR', path: '/app/employees', icon: UserCheck },
-        { name: 'Geofenced Attendance', path: '/app/attendance', icon: ShieldCheck },
-        { name: 'Payroll & Statutory Tax', path: '/app/payroll', icon: DollarSign },
+        { name: 'Project & BOQ Manager', path: '/app/projects', icon: HardHat, requiredPermission: 'view_projects' },
+        { name: 'Employees & HR', path: '/app/employees', icon: UserCheck, requiredPermission: 'view_employees' },
+        { name: 'Geofenced Attendance', path: '/app/attendance', icon: ShieldCheck, requiredPermission: 'view_attendance' },
+        { name: 'Payroll & Statutory Tax', path: '/app/payroll', icon: DollarSign, requiredPermission: 'view_payroll' },
       ],
     },
     {
       title: 'FINANCE & GOVERNANCE',
       items: [
-        { name: 'Accounting & Ledger', path: '/app/accounting', icon: Calculator },
-        { name: 'Reports & Analytics', path: '/app/reports', icon: BarChart3 },
-        { name: 'Document Vault', path: '/app/documents', icon: FolderLock },
-        { name: 'Settings & Audit Logs', path: '/app/settings', icon: Settings },
+        { name: 'Accounting & Ledger', path: '/app/accounting', icon: Calculator, requiredPermission: 'view_accounting' },
+        { name: 'Reports & Analytics', path: '/app/reports', icon: BarChart3, requiredPermission: 'view_reports' },
+        { name: 'Document Vault', path: '/app/documents', icon: FolderLock, requiredPermission: 'view_documents' },
+        { name: 'Settings & Audit Logs', path: '/app/settings', icon: Settings, requiredPermission: 'view_settings' },
       ],
     },
   ];
@@ -95,6 +109,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
     'Customer',
     'Supplier',
   ];
+
+  // Filter groups: only show groups that have at least one visible item
+  const visibleGroups = navGroups
+    .map((group) => ({
+      ...group,
+      items: group.items.filter((item) => hasPermission(item.requiredPermission)),
+    }))
+    .filter((group) => group.items.length > 0);
 
   return (
     <aside
@@ -131,9 +153,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
         </select>
       </div>
 
-      {/* Navigation Items */}
+      {/* Navigation Items — Permission Gated */}
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-5 scrollbar-thin">
-        {navGroups.map((group) => (
+        {visibleGroups.map((group) => (
           <div key={group.title} className="space-y-1">
             <h2 className="px-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
               {group.title}

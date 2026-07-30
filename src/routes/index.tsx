@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
-import { ProtectedRoute } from './ProtectedRoute';
+import { ProtectedRoute, PermissionGate } from './ProtectedRoute';
 import { LoginPage } from '../features/auth/LoginPage';
 import { DashboardPage } from '../features/dashboard/DashboardPage';
 import { CompanyPage } from '../features/company/CompanyPage';
@@ -32,25 +32,35 @@ export const AppRouter: React.FC = () => {
         <Route element={<ProtectedRoute />}>
           <Route path="/app" element={<AppLayout />}>
             <Route index element={<Navigate to="/app/dashboard" replace />} />
-            <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="company" element={<CompanyPage />} />
-            <Route path="customers" element={<CustomersPage />} />
-            <Route path="suppliers" element={<SuppliersPage />} />
-            <Route path="products" element={<ProductsPage />} />
-            <Route path="inventory" element={<InventoryPage />} />
-            <Route path="purchase" element={<PurchasePage />} />
-            <Route path="sales" element={<SalesPage />} />
-            <Route path="billing" element={<BillingPage />} />
-            <Route path="accounting" element={<AccountingPage />} />
-            <Route path="projects" element={<ProjectsPage />} />
-            <Route path="delivery" element={<DeliveryPage />} />
-            <Route path="employees" element={<EmployeesPage />} />
-            <Route path="attendance" element={<AttendancePage />} />
-            <Route path="payroll" element={<PayrollPage />} />
-            <Route path="crm" element={<CrmPage />} />
-            <Route path="reports" element={<ReportsPage />} />
-            <Route path="documents" element={<DocumentsPage />} />
-            <Route path="settings" element={<SettingsPage />} />
+
+            {/* CORE OPERATIONAL HQ */}
+            <Route path="dashboard" element={<PermissionGate permission="view_dashboard"><DashboardPage /></PermissionGate>} />
+            <Route path="company" element={<PermissionGate permission="manage_company"><CompanyPage /></PermissionGate>} />
+            <Route path="crm" element={<PermissionGate permission="view_crm"><CrmPage /></PermissionGate>} />
+
+            {/* PARTNERS & MATERIAL MASTER */}
+            <Route path="customers" element={<PermissionGate permission="view_customers"><CustomersPage /></PermissionGate>} />
+            <Route path="suppliers" element={<PermissionGate permission="view_suppliers"><SuppliersPage /></PermissionGate>} />
+            <Route path="products" element={<PermissionGate permission="view_products"><ProductsPage /></PermissionGate>} />
+            <Route path="inventory" element={<PermissionGate permission="view_inventory"><InventoryPage /></PermissionGate>} />
+
+            {/* COMMERCIAL & LOGISTICS */}
+            <Route path="purchase" element={<PermissionGate permission="view_purchase"><PurchasePage /></PermissionGate>} />
+            <Route path="sales" element={<PermissionGate permission="view_sales"><SalesPage /></PermissionGate>} />
+            <Route path="billing" element={<PermissionGate permission="view_billing"><BillingPage /></PermissionGate>} />
+            <Route path="delivery" element={<PermissionGate permission="view_delivery"><DeliveryPage /></PermissionGate>} />
+
+            {/* PROJECTS & WORKFORCE */}
+            <Route path="projects" element={<PermissionGate permission="view_projects"><ProjectsPage /></PermissionGate>} />
+            <Route path="employees" element={<PermissionGate permission="view_employees"><EmployeesPage /></PermissionGate>} />
+            <Route path="attendance" element={<PermissionGate permission="view_attendance"><AttendancePage /></PermissionGate>} />
+            <Route path="payroll" element={<PermissionGate permission="view_payroll"><PayrollPage /></PermissionGate>} />
+
+            {/* FINANCE & GOVERNANCE */}
+            <Route path="accounting" element={<PermissionGate permission="view_accounting"><AccountingPage /></PermissionGate>} />
+            <Route path="reports" element={<PermissionGate permission="view_reports"><ReportsPage /></PermissionGate>} />
+            <Route path="documents" element={<PermissionGate permission="view_documents"><DocumentsPage /></PermissionGate>} />
+            <Route path="settings" element={<PermissionGate permission="view_settings"><SettingsPage /></PermissionGate>} />
           </Route>
         </Route>
 
