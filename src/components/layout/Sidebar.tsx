@@ -125,14 +125,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
       }`}
     >
       {/* Brand Logo & Company Title */}
-      <div className="h-16 px-4 border-b border-slate-800/80 flex items-center gap-3 bg-slate-900/60">
-        <img src="/assets/logo.png" alt="Patterns Factory" className="h-9 w-auto object-contain shrink-0" />
-        <div className="overflow-hidden">
-          <h1 className="text-sm font-bold text-slate-100 truncate tracking-tight">Patterns Factory OS</h1>
-          <p className="text-[10px] font-semibold text-sky-400 truncate uppercase tracking-wider">
-            {company?.name || 'Apex Aggregates'}
-          </p>
-        </div>
+      <div className="py-4 border-b border-slate-800/80 flex flex-col items-center justify-center bg-slate-900/60 gap-2">
+        <img src="/assets/logo.png" alt="Patterns Factory OS" className="h-10 w-auto object-contain shrink-0" />
+        <p className="text-[10px] font-semibold text-sky-400 truncate uppercase tracking-wider text-center px-2">
+          {company?.name || 'Apex Aggregates'}
+        </p>
       </div>
 
       {/* Role Selector Simulator for Demo */}

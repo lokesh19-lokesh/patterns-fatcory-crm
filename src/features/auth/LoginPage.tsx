@@ -30,11 +30,10 @@ export const LoginPage: React.FC = () => {
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-sky-500/10 blur-[120px] rounded-full pointer-events-none" />
       <div className="absolute bottom-10 right-10 w-80 h-80 bg-amber-500/10 blur-[120px] rounded-full pointer-events-none" />
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3 z-10">
-        <div className="inline-flex items-center justify-center p-3 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl">
-          <img src="/assets/logo.png" alt="Patterns Factory" className="h-12 w-auto object-contain" />
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-4 z-10 mt-8">
+        <div className="inline-flex items-center justify-center p-4 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl">
+          <img src="/assets/logo.png" alt="Patterns Factory OS" className="h-20 w-auto object-contain" />
         </div>
-        <h2 className="text-2xl font-extrabold text-slate-100 tracking-tight">Patterns Factory OS</h2>
         <p className="text-xs font-semibold text-sky-400 uppercase tracking-widest">
           Enterprise Multi-Tenant Construction CRM & ERP
         </p>

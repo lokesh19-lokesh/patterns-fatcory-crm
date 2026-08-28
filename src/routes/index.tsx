@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppLayout } from '../components/layout/AppLayout';
 import { ProtectedRoute, PermissionGate } from './ProtectedRoute';
+import { LandingPage } from '../features/landing/LandingPage';
 import { LoginPage } from '../features/auth/LoginPage';
 import { DashboardPage } from '../features/dashboard/DashboardPage';
 import { CompanyPage } from '../features/company/CompanyPage';
@@ -27,8 +28,11 @@ export const AppRouter: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
 
+        {/* Protected Application Routes */}
         <Route element={<ProtectedRoute />}>
           <Route path="/app" element={<AppLayout />}>
             <Route index element={<Navigate to="/app/dashboard" replace />} />

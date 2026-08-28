@@ -9,14 +9,20 @@ export default {
     extend: {
       colors: {
         brand: {
-          50: '#f0f9ff',
-          100: '#e0f2fe',
-          500: '#0284c7',
-          600: '#0284c7',
-          700: '#0369a1',
-          800: '#075985',
-          900: '#0c4a6e',
-          950: '#082f49',
+          50: '#fef2f2',
+          100: '#fee2e2',
+          200: '#fecaca',
+          300: '#fca5a5',
+          400: '#f87171',
+          500: '#ef4444',
+          600: '#dc2626',
+          700: '#d8232a', // Main BrickOS brand red
+          800: '#b91c1c',
+          900: '#991b1b',
+          950: '#450a0a',
+          red: '#D8232A',
+          scarlet: '#E51E2B',
+          dark: '#111827',
         },
         construction: {
           amber: '#f59e0b',
@@ -26,7 +32,8 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+        heading: ['Outfit', '"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.2s ease-in-out',

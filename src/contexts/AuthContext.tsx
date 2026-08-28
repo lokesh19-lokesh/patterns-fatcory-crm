@@ -61,10 +61,15 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(() => {
     const stored = localStorage.getItem('patterns_user');
-    return stored ? JSON.parse(stored) : DEFAULT_USER;
+    return stored ? JSON.parse(stored) : null;
   });
-  const [company, setCompany] = useState<Company | null>(DEFAULT_COMPANY);
-  const [role, setRole] = useState<UserRole>(user?.role || 'Company Admin');
+  const [company, setCompany] = useState<Company | null>(() => {
+     return localStorage.getItem('patterns_user') ? DEFAULT_COMPANY : null;
+  });
+  const [role, setRole] = useState<UserRole>(() => {
+      const stored = localStorage.getItem('patterns_user');
+      return stored ? JSON.parse(stored).role : 'Company Admin';
+  });
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
