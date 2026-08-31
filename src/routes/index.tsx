@@ -25,6 +25,7 @@ import { CrmPage } from '../features/crm/CrmPage';
 import { ReportsPage } from '../features/reports/ReportsPage';
 import { DocumentsPage } from '../features/documents/DocumentsPage';
 import { SettingsPage } from '../features/settings/SettingsPage';
+import { SuperAdminPage } from '../features/super-admin/SuperAdminPage';
 
 export const AppRouter: React.FC = () => {
   return (
@@ -55,6 +56,9 @@ export const AppRouter: React.FC = () => {
             <Route path="purchase" element={<PermissionGate permission="view_purchase"><PurchasePage /></PermissionGate>} />
             <Route path="sales" element={<PermissionGate permission="view_sales"><SalesPage /></PermissionGate>} />
             <Route path="crm" element={<PermissionGate permission="view_crm"><CrmPage /></PermissionGate>} />
+
+            {/* SUPER ADMIN PLATFORM OWNER */}
+            <Route path="super-admin" element={<PermissionGate permission="manage_subscriptions"><SuperAdminPage /></PermissionGate>} />
 
             {/* WORKFORCE & ENTERPRISE */}
             <Route path="employees" element={<PermissionGate permission="view_employees"><EmployeesPage /></PermissionGate>} />

@@ -2,18 +2,32 @@ import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { Lock, Mail, Building, KeyRound, ShieldCheck, ArrowRight } from 'lucide-react';
+import { Lock, Mail, Building, KeyRound, ShieldCheck, ArrowRight, Crown, Building2, HardHat } from 'lucide-react';
 import { UserRole } from '../../types';
 
 export const LoginPage: React.FC = () => {
-  const { login, isLoading } = useAuth();
+  const { login, isLoading, workers } = useAuth();
   const [email, setEmail] = useState('admin@apexmaterials.com');
   const [password, setPassword] = useState('••••••••••••');
   const [companyGstin, setCompanyGstin] = useState('27AAACA12341Z5');
-  const [selectedRole, setSelectedRole] = useState<UserRole>('Company Admin');
+  const [selectedRole, setSelectedRole] = useState<UserRole>('Admin');
   const [mode, setMode] = useState<'password' | 'otp'>('password');
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState('');
+
+  const handleRoleSelection = (role: UserRole) => {
+    setSelectedRole(role);
+    if (role === 'Super Admin') {
+      setEmail('superadmin@patterns.com');
+      setCompanyGstin('PLATFORM-MASTER');
+    } else if (role === 'Admin' || role === 'Company Admin') {
+      setEmail('admin@apexmaterials.com');
+      setCompanyGstin('27AAACA12341Z5');
+    } else if (role === 'Worker') {
+      setEmail(workers[0]?.email || 'worker@apexmaterials.com');
+      setCompanyGstin('27AAACA12341Z5');
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -53,12 +67,62 @@ export const LoginPage: React.FC = () => {
           </div>
         </div>
         <p className="text-xs font-bold text-slate-600 uppercase tracking-wider">
-          Enterprise Cloud Management & ERP Portal
+          Enterprise Cloud Management & Factory OS Portal
         </p>
       </div>
 
       <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md z-10 px-4">
         <div className="bg-white py-8 px-6 shadow-xl border border-slate-200/90 rounded-2xl space-y-6">
+          {/* 3-Tier Quick Role Selector Cards */}
+          <div className="space-y-1.5">
+            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider text-center">
+              Choose Access Portal Tier
+            </label>
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => handleRoleSelection('Super Admin')}
+                className={`p-2.5 rounded-xl border text-left transition-all flex flex-col items-center text-center gap-1 ${
+                  selectedRole === 'Super Admin'
+                    ? 'bg-slate-900 text-white border-slate-900 shadow-md ring-2 ring-slate-900/20'
+                    : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                }`}
+              >
+                <Crown className={`w-4 h-4 ${selectedRole === 'Super Admin' ? 'text-amber-400' : 'text-slate-500'}`} />
+                <span className="text-[11px] font-bold leading-tight">Super Admin</span>
+                <span className="text-[9px] opacity-70 leading-none">Owner</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleRoleSelection('Admin')}
+                className={`p-2.5 rounded-xl border text-left transition-all flex flex-col items-center text-center gap-1 ${
+                  selectedRole === 'Admin' || selectedRole === 'Company Admin'
+                    ? 'bg-[#D8232A] text-white border-[#D8232A] shadow-md ring-2 ring-red-500/20'
+                    : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                }`}
+              >
+                <Building2 className={`w-4 h-4 ${selectedRole === 'Admin' ? 'text-white' : 'text-slate-500'}`} />
+                <span className="text-[11px] font-bold leading-tight">Admin</span>
+                <span className="text-[9px] opacity-70 leading-none">Subscriber</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handleRoleSelection('Worker')}
+                className={`p-2.5 rounded-xl border text-left transition-all flex flex-col items-center text-center gap-1 ${
+                  selectedRole === 'Worker'
+                    ? 'bg-blue-600 text-white border-blue-600 shadow-md ring-2 ring-blue-500/20'
+                    : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
+                }`}
+              >
+                <HardHat className={`w-4 h-4 ${selectedRole === 'Worker' ? 'text-white' : 'text-slate-500'}`} />
+                <span className="text-[11px] font-bold leading-tight">Worker</span>
+                <span className="text-[9px] opacity-70 leading-none">Staff</span>
+              </button>
+            </div>
+          </div>
+
           {/* Auth Method Tabs */}
           <div className="flex border-b border-slate-200 pb-2">
             <button
@@ -138,29 +202,6 @@ export const LoginPage: React.FC = () => {
               </div>
             )}
 
-            <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
-                Select Initial Role View
-              </label>
-              <select
-                value={selectedRole}
-                onChange={(e) => setSelectedRole(e.target.value as UserRole)}
-                className="w-full bg-white border border-slate-300 text-slate-900 rounded-lg p-2.5 text-xs font-semibold focus:outline-none focus:border-[#D8232A] focus:ring-1 focus:ring-[#D8232A]"
-              >
-                <option value="Super Admin">Super Admin (God Mode — All Tenants)</option>
-                <option value="Company Admin">Company Admin (Full Tenant Access)</option>
-                <option value="Manager">Manager (Operations & Teams)</option>
-                <option value="Sales Executive">Sales Executive (Leads & Orders)</option>
-                <option value="Purchase Manager">Purchase Manager (POs & Suppliers)</option>
-                <option value="Warehouse Manager">Warehouse Manager (Stock & Inventory)</option>
-                <option value="HR">HR (Payroll & Attendance)</option>
-                <option value="Accountant">Accountant (GST Invoices & P&L)</option>
-                <option value="Driver">Driver (Delivery Dispatch & GPS)</option>
-                <option value="Customer">Customer (Client Portal & Bills)</option>
-                <option value="Supplier">Supplier (PO Viewer & Products)</option>
-              </select>
-            </div>
-
             <Button
               type="submit"
               variant="primary"
@@ -168,7 +209,7 @@ export const LoginPage: React.FC = () => {
               isLoading={isLoading}
               icon={<ArrowRight className="w-4 h-4" />}
             >
-              Sign In to Tenant Portal
+              Sign In as {selectedRole}
             </Button>
           </form>
 

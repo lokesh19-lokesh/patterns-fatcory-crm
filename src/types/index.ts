@@ -1,5 +1,7 @@
 export type UserRole = 
   | 'Super Admin'
+  | 'Admin'
+  | 'Worker'
   | 'Company Admin'
   | 'Manager'
   | 'Sales Executive'
@@ -10,6 +12,9 @@ export type UserRole =
   | 'Driver'
   | 'Customer'
   | 'Supplier';
+
+export type SubscriptionStatus = 'Active' | 'Trial' | 'Suspended' | 'Cancelled' | 'Expired';
+export type SubscriptionPlan = 'Starter' | 'Professional' | 'Enterprise' | 'Custom';
 
 export interface Company {
   id: string;
@@ -34,6 +39,15 @@ export interface Company {
     branch: string;
   };
   branches_count?: number;
+  subscription_plan: SubscriptionPlan;
+  subscription_status: SubscriptionStatus;
+  subscription_expires_at: string;
+  subscription_price: number;
+  billing_cycle: 'Monthly' | 'Quarterly' | 'Annual';
+  max_workers: number;
+  max_branches: number;
+  admin_name?: string;
+  admin_email?: string;
   created_at: string;
 }
 
@@ -59,6 +73,8 @@ export interface UserProfile {
   full_name: string;
   phone: string;
   role: UserRole;
+  worker_designation?: string;
+  assigned_by?: string;
   avatar_url?: string;
   department?: string;
   designation?: string;
