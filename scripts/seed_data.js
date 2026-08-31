@@ -1,7 +1,7 @@
 import pg from 'pg';
 const { Client } = pg;
 
-const connectionString = 'postgresql://postgres:Patterns%40ostpc1@db.udoyesvnmuksmclgzomf.supabase.co:5432/postgres';
+const connectionString = process.env.DATABASE_URL || 'postgresql://postgres:Hanuman%401988%402026@db.ebgkooaqhconffelrwlx.supabase.co:5432/postgres';
 
 async function seedData() {
   const client = new Client({
