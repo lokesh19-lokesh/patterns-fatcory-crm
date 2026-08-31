@@ -19,7 +19,7 @@ interface AuthContextType {
   role: UserRole;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, role?: UserRole, customPermissions?: PermissionAction[]) => Promise<void>;
+  login: (email: string, password?: string, role?: UserRole, customPermissions?: PermissionAction[]) => Promise<void>;
   logout: () => void;
   switchRole: (newRole: UserRole, workerDetails?: Partial<UserProfile>) => void;
   selectCompany: (companyId: string) => void;
@@ -399,35 +399,44 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (
     email: string,
-    selectedRole: UserRole = 'Admin',
+    password?: string,
+    explicitRole?: UserRole,
     customPermissions?: PermissionAction[]
   ) => {
     setIsLoading(true);
     await new Promise((resolve) => setTimeout(resolve, 300));
 
+    const cleanEmail = email.trim().toLowerCase();
+    let detectedRole: UserRole = explicitRole || 'Admin';
     let loggedUser: UserProfile;
-    if (selectedRole === 'Super Admin') {
+
+    if (cleanEmail === SOLE_SUPER_ADMIN_EMAIL.toLowerCase()) {
+      detectedRole = 'Super Admin';
       loggedUser = { ...DEFAULT_SUPER_ADMIN, email: SOLE_SUPER_ADMIN_EMAIL };
-    } else if (selectedRole === 'Worker') {
-      const matched = workers.find((w) => w.email.toLowerCase() === email.toLowerCase());
-      loggedUser = {
-        ...DEFAULT_WORKER,
-        email,
-        full_name: matched ? matched.full_name : email.split('@')[0].toUpperCase().replace('.', ' '),
-        permissions: matched?.permissions || customPermissions || DEFAULT_WORKER.permissions,
-        worker_designation: matched?.worker_designation || DEFAULT_WORKER.worker_designation,
-      };
     } else {
-      loggedUser = {
-        ...DEFAULT_ADMIN,
-        email,
-        role: selectedRole,
-        full_name: email.split('@')[0].toUpperCase().replace('.', ' '),
-      };
+      const matchedWorker = workers.find((w) => w.email.toLowerCase() === cleanEmail);
+      if (matchedWorker) {
+        detectedRole = 'Worker';
+        loggedUser = {
+          ...matchedWorker,
+          role: 'Worker',
+          permissions: matchedWorker.permissions && matchedWorker.permissions.length > 0
+            ? matchedWorker.permissions
+            : DEFAULT_WORKER.permissions,
+        };
+      } else {
+        detectedRole = explicitRole || 'Admin';
+        loggedUser = {
+          ...DEFAULT_ADMIN,
+          email: cleanEmail,
+          role: detectedRole,
+          full_name: cleanEmail.split('@')[0].toUpperCase().replace('.', ' '),
+        };
+      }
     }
 
     setUser(loggedUser);
-    setRole(selectedRole);
+    setRole(detectedRole);
     setIsLoading(false);
   };
 

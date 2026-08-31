@@ -1,51 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { Lock, Mail, Building, KeyRound, ShieldCheck, ArrowRight, Crown, Building2, HardHat } from 'lucide-react';
-import { UserRole } from '../../types';
+import { Lock, Mail, ShieldCheck, ArrowRight, KeyRound, Eye, EyeOff } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
-  const { login, isLoading, workers } = useAuth();
-  const [email, setEmail] = useState('admin@apexmaterials.com');
-  const [password, setPassword] = useState('••••••••••••');
-  const [companyGstin, setCompanyGstin] = useState('27AAACA12341Z5');
-  const [selectedRole, setSelectedRole] = useState<UserRole>('Admin');
+  const { login, isLoading, isAuthenticated, role } = useAuth();
+  const navigate = useNavigate();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [mode, setMode] = useState<'password' | 'otp'>('password');
   const [otpSent, setOtpSent] = useState(false);
   const [otpCode, setOtpCode] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const handleRoleSelection = (role: UserRole) => {
-    setSelectedRole(role);
-    if (role === 'Super Admin') {
-      setEmail('brickserpsoftware@gmail.com');
-      setCompanyGstin('PLATFORM-MASTER');
-    } else if (role === 'Admin' || role === 'Company Admin') {
-      setEmail('admin@apexmaterials.com');
-      setCompanyGstin('27AAACA12341Z5');
-    } else if (role === 'Worker') {
-      setEmail(workers[0]?.email || 'worker@apexmaterials.com');
-      setCompanyGstin('27AAACA12341Z5');
+  // If already authenticated, redirect to appropriate portal
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (role === 'Super Admin') {
+        navigate('/app/super-admin', { replace: true });
+      } else {
+        navigate('/app/dashboard', { replace: true });
+      }
+    }
+  }, [isAuthenticated, role, navigate]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    setErrorMsg('');
+
+    try {
+      await login(email, password);
+      if (email.trim().toLowerCase() === 'brickserpsoftware@gmail.com') {
+        navigate('/app/super-admin');
+      } else {
+        navigate('/app/dashboard');
+      }
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Login failed. Please verify credentials.');
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    login(email, selectedRole);
-  };
-
   const handleSendOtp = () => {
+    if (!email) return;
     setOtpSent(true);
   };
 
   return (
     <div className="min-h-screen bg-[#FAFAFC] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden font-sans">
-      {/* Background Soft Glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-red-100/50 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-80 h-80 bg-amber-100/50 blur-[120px] rounded-full pointer-events-none" />
+      {/* Background Soft Ambient Gradients */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[32rem] h-[32rem] bg-red-100/40 blur-[130px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-80 h-80 bg-amber-100/40 blur-[120px] rounded-full pointer-events-none" />
 
+      {/* Brand Header */}
       <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3 z-10">
-        <div className="inline-flex items-center justify-center p-3 bg-white border border-slate-200 rounded-2xl shadow-sm">
+        <div className="inline-flex items-center justify-center p-3 bg-white border border-slate-200/90 rounded-2xl shadow-sm">
           <div className="flex items-center gap-3">
             <svg width="40" height="30" viewBox="0 0 44 32" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path
@@ -71,174 +82,151 @@ export const LoginPage: React.FC = () => {
         </p>
       </div>
 
+      {/* Login Card */}
       <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md z-10 px-4">
-        <div className="bg-white py-8 px-6 shadow-xl border border-slate-200/90 rounded-2xl space-y-6">
-          {/* 3-Tier Quick Role Selector Cards */}
-          <div className="space-y-1.5">
-            <label className="block text-[11px] font-bold text-slate-500 uppercase tracking-wider text-center">
-              Choose Access Portal Tier
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => handleRoleSelection('Super Admin')}
-                className={`p-2.5 rounded-xl border text-left transition-all flex flex-col items-center text-center gap-1 ${
-                  selectedRole === 'Super Admin'
-                    ? 'bg-slate-900 text-white border-slate-900 shadow-md ring-2 ring-slate-900/20'
-                    : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
-                }`}
-              >
-                <Crown className={`w-4 h-4 ${selectedRole === 'Super Admin' ? 'text-amber-400' : 'text-slate-500'}`} />
-                <span className="text-[11px] font-bold leading-tight">Super Admin</span>
-                <span className="text-[9px] opacity-70 leading-none">Owner</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleRoleSelection('Admin')}
-                className={`p-2.5 rounded-xl border text-left transition-all flex flex-col items-center text-center gap-1 ${
-                  selectedRole === 'Admin' || selectedRole === 'Company Admin'
-                    ? 'bg-[#D8232A] text-white border-[#D8232A] shadow-md ring-2 ring-red-500/20'
-                    : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
-                }`}
-              >
-                <Building2 className={`w-4 h-4 ${selectedRole === 'Admin' ? 'text-white' : 'text-slate-500'}`} />
-                <span className="text-[11px] font-bold leading-tight">Admin</span>
-                <span className="text-[9px] opacity-70 leading-none">Subscriber</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => handleRoleSelection('Worker')}
-                className={`p-2.5 rounded-xl border text-left transition-all flex flex-col items-center text-center gap-1 ${
-                  selectedRole === 'Worker'
-                    ? 'bg-blue-600 text-white border-blue-600 shadow-md ring-2 ring-blue-500/20'
-                    : 'bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200'
-                }`}
-              >
-                <HardHat className={`w-4 h-4 ${selectedRole === 'Worker' ? 'text-white' : 'text-slate-500'}`} />
-                <span className="text-[11px] font-bold leading-tight">Worker</span>
-                <span className="text-[9px] opacity-70 leading-none">Staff</span>
-              </button>
-            </div>
-          </div>
-
+        <div className="bg-white py-8 px-6 shadow-xl border border-slate-200/90 rounded-3xl space-y-6">
           {/* Auth Method Tabs */}
           <div className="flex border-b border-slate-200 pb-2">
             <button
+              type="button"
               onClick={() => setMode('password')}
               className={`flex-1 text-center py-2 text-xs font-bold transition-all border-b-2 ${
-                mode === 'password' ? 'border-[#D8232A] text-[#D8232A]' : 'border-transparent text-slate-500 hover:text-slate-800'
+                mode === 'password'
+                  ? 'border-[#D8232A] text-[#D8232A]'
+                  : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
               Email & Password
             </button>
             <button
+              type="button"
               onClick={() => setMode('otp')}
               className={`flex-1 text-center py-2 text-xs font-bold transition-all border-b-2 ${
-                mode === 'otp' ? 'border-[#D8232A] text-[#D8232A]' : 'border-transparent text-slate-500 hover:text-slate-800'
+                mode === 'otp'
+                  ? 'border-[#D8232A] text-[#D8232A]'
+                  : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
               Instant OTP Login
             </button>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {selectedRole === 'Super Admin' ? (
-              <div className="p-3 bg-slate-900 text-white rounded-xl border border-slate-800 space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] uppercase font-mono font-bold text-amber-400 flex items-center gap-1">
-                    <Crown className="w-3.5 h-3.5" /> Sole Super Admin Account
-                  </span>
-                  <span className="text-[9px] px-1.5 py-0.5 bg-slate-800 text-slate-300 font-mono rounded">
-                    Fixed Master
-                  </span>
-                </div>
-                <p className="text-xs font-bold text-white font-mono">
-                  brickserpsoftware@gmail.com
-                </p>
-                <p className="text-[10px] text-slate-400 leading-tight">
-                  There is only one master Super Admin owner account for the entire platform.
-                </p>
-              </div>
-            ) : (
-              <>
-                <Input
-                  label="Company GSTIN / Tenant Code"
-                  icon={<Building className="w-4 h-4" />}
-                  value={companyGstin}
-                  onChange={(e) => setCompanyGstin(e.target.value)}
-                  placeholder="e.g. 27AAACA12341Z5"
-                  required
-                />
+          {errorMsg && (
+            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 font-medium text-center">
+              {errorMsg}
+            </div>
+          )}
 
-                <Input
-                  label="Official Work Email"
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            {/* Email Address */}
+            <div className="space-y-1">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                Official Email Address
+              </label>
+              <div className="relative">
+                <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
                   type="email"
-                  icon={<Mail className="w-4 h-4" />}
+                  required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@construction.com"
-                  required
+                  placeholder="name@company.com"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-[#D8232A] focus:bg-white transition-all shadow-inner"
                 />
-              </>
-            )}
+              </div>
+            </div>
 
             {mode === 'password' ? (
-              <Input
-                label="Password"
-                type="password"
-                icon={<Lock className="w-4 h-4" />}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
+              /* Password Field with View Password Toggle */
+              <div className="space-y-1">
+                <div className="flex justify-between items-center">
+                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    Password
+                  </label>
+                  <a href="#forgot" className="text-[11px] text-slate-500 hover:text-[#D8232A] font-semibold">
+                    Forgot Password?
+                  </a>
+                </div>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••••••"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-10 py-2.5 text-xs text-slate-900 font-medium focus:outline-none focus:border-[#D8232A] focus:bg-white transition-all shadow-inner font-mono"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors p-1"
+                    title={showPassword ? 'Hide password' : 'View password'}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="w-4 h-4 text-slate-600" />
+                    ) : (
+                      <Eye className="w-4 h-4 text-slate-400" />
+                    )}
+                  </button>
+                </div>
+              </div>
             ) : (
-              <div className="space-y-2">
-                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide">
-                  Mobile / OTP Authorization
-                </label>
+              /* OTP Field */
+              <div className="space-y-3">
                 {!otpSent ? (
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full text-xs"
+                    className="w-full text-xs font-bold py-2.5"
                     onClick={handleSendOtp}
                   >
-                    Send 6-Digit OTP Code
+                    Send 6-Digit Login Code
                   </Button>
                 ) : (
-                  <div className="flex gap-2">
-                    <Input
-                      icon={<KeyRound className="w-4 h-4" />}
-                      placeholder="Enter 6-digit OTP"
-                      value={otpCode}
-                      onChange={(e) => setOtpCode(e.target.value)}
-                    />
-                    <Button type="button" variant="primary" className="shrink-0 text-xs">
-                      Verify
-                    </Button>
+                  <div className="space-y-1">
+                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
+                      Enter Verification Code
+                    </label>
+                    <div className="relative">
+                      <KeyRound className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="text"
+                        required
+                        value={otpCode}
+                        onChange={(e) => setOtpCode(e.target.value)}
+                        placeholder="123456"
+                        maxLength={6}
+                        className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-900 font-mono tracking-widest text-center font-bold focus:outline-none focus:border-[#D8232A] focus:bg-white transition-all shadow-inner"
+                      />
+                    </div>
+                    <p className="text-[10px] text-emerald-600 font-bold text-center pt-1">
+                      OTP sent to registered address
+                    </p>
                   </div>
                 )}
               </div>
             )}
 
+            {/* Submit Button */}
             <Button
-              type="submit"
               variant="primary"
-              className="w-full mt-2 py-2.5 text-sm font-bold"
+              type="submit"
+              className="w-full py-3 shadow-lg shadow-red-600/20 text-xs font-bold uppercase tracking-wider rounded-xl mt-2"
               isLoading={isLoading}
               icon={<ArrowRight className="w-4 h-4" />}
             >
-              Sign In as {selectedRole}
+              Sign In to ERP Cloud
             </Button>
           </form>
 
-          <div className="pt-4 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
-            <span className="flex items-center gap-1.5 text-emerald-700 font-semibold">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" /> 256-bit Encrypted RLS
-            </span>
-            <button className="hover:text-slate-800 font-semibold underline">Forgot Password?</button>
+          {/* Footer Security Badges */}
+          <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500 font-medium">
+            <div className="flex items-center gap-1.5 text-slate-600">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" />
+              <span>256-bit Encrypted RLS</span>
+            </div>
+            <span className="font-mono text-[10px] text-slate-400">Patterns Cloud v2.4</span>
           </div>
         </div>
       </div>
