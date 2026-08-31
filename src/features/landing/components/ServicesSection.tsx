@@ -2,15 +2,15 @@ import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Building2,
-  Users2,
-  Package,
-  ShoppingCart,
-  Truck,
-  FileSpreadsheet,
+  Layers,
+  Boxes,
   HardHat,
-  UserCheck,
-  BarChart4,
+  Truck,
+  IndianRupee,
+  BarChart3,
+  Building2,
+  Users,
+  Package,
   Check,
   ArrowRight,
   Sparkles,
@@ -21,212 +21,158 @@ export const ServicesSection: React.FC = () => {
 
   const services = [
     {
-      id: 'enterprise',
+      id: 'production',
       category: 'core',
       num: '01',
-      icon: Building2,
-      title: 'Multi-Tenant & Multi-Branch Enterprise Management',
-      subtitle: 'Centralized governance across corporate headquarters, subsidiary branches, and plants.',
+      icon: Layers,
+      title: 'Production Management',
+      subtitle: 'Daily brick & block molding runs, batch mixing, kiln firing cycles, and breakage tracking.',
       features: [
         {
-          name: 'Company Profile & Branches Setup',
-          desc: 'Centralized registry for corporate headquarters, sub-branches, GSTINs, PANs, and multi-bank account configurations.',
+          name: 'Daily Output & Batch Runs',
+          desc: 'Log daily production runs across Automatic Press Lines, Vibro Compactors, and Bull Trench Kiln chambers.',
         },
         {
-          name: 'Granular RBAC (11 Role Personas)',
-          desc: 'Permission-gated access tailored for Super Admin, Company Admin, Manager, Sales Executive, Purchase Manager, Warehouse Manager, HR, Accountant, Driver, Customer, and Supplier.',
+          name: 'Raw Mix Ratio & Recipes',
+          desc: 'Standardized batch recipes for Fly Ash (55%), Stone Dust (25%), Cement (12%), and Lime/Gypsum (8%).',
         },
         {
-          name: 'Row-Level Security (RLS) & Multi-Tenancy',
-          desc: 'Database-engine level data isolation keeping multiple companies and operational branches strictly partitioned with zero data leakage.',
+          name: 'Breakage & Wastage Control',
+          desc: 'Real-time breakage monitoring with safety thresholds, QA compressive strength targets, and grade sorting (A/B/C Grade).',
+        },
+        {
+          name: 'Kiln Firing & Curing Telemetry',
+          desc: 'Monitor green bricks drying, autoclave steam cycles, and kiln chamber cooling schedules.',
         },
       ],
     },
     {
-      id: 'crm',
-      category: 'commercial',
+      id: 'stock',
+      category: 'core',
       num: '02',
-      icon: Users2,
-      title: 'CRM & Client Relationship Services',
-      subtitle: 'Accelerate deal closing, manage site inspections, and control credit risk.',
+      icon: Boxes,
+      title: 'Stock & Raw Materials',
+      subtitle: 'Real-time inventory balances for raw materials and finished brick & block stockyards.',
       features: [
         {
-          name: 'Lead & Pipeline Management',
-          desc: 'Visual Kanban and tabular lead tracking across stages: New, Contacted, Site Inspection, Quote Sent, Negotiation, Won, and Lost.',
+          name: 'Raw Material Intake & Stock',
+          desc: 'Live tracking of Fly Ash, OPC/PPC Cement, Lime, Gypsum, Stone Dust, River Sand, Red Clay, and Coal.',
         },
         {
-          name: 'Site Inspections & Follow-up Scheduling',
-          desc: 'Schedule on-site material inspections, assign field agents, and automate customer follow-up WhatsApp/SMS reminders.',
+          name: 'Finished Goods Inventory',
+          desc: 'Real-time count of Fly Ash Bricks, Red Clay Bricks, Paver Blocks, AAC Lightweight Blocks, and Solid Masonry Blocks.',
         },
         {
-          name: 'Customer Credit & Ledger Control',
-          desc: 'Automated credit limit checks, payment terms enforcement (15/30/60 days), and real-time outstanding balance tracking.',
+          name: 'Automated Stock In/Out & Transfers',
+          desc: 'Automatic stock deduction upon vehicle dispatch and automatic intake increment upon PO Goods Receipt Notes (GRN).',
         },
         {
-          name: 'Client Category Segregation',
-          desc: 'Tailored pricing, credit terms, and order rules for Contractors, Developers, Retailers, and Individual Home Builders.',
+          name: 'Low Stock & Reorder Alarms',
+          desc: 'Intelligent threshold alerts preventing kiln shutdowns due to sudden shortages of fuel, coal, or fly ash.',
         },
       ],
     },
     {
-      id: 'inventory',
-      category: 'supply',
+      id: 'labour',
+      category: 'core',
       num: '03',
-      icon: Package,
-      title: 'Supply Chain, Material Master & Multi-Warehouse Inventory',
-      subtitle: 'Live stock tracking, automated balance triggers, and raw material monitoring.',
-      features: [
-        {
-          name: 'Product Catalog & Material Master',
-          desc: 'Unified master data with SKUs, barcode rendering (bwip-js), HSN codes, and dynamic GST tax rate slabs (0% to 28%).',
-        },
-        {
-          name: 'Multi-Warehouse Stock Tracking',
-          desc: 'Live inventory balances across factory floors, central warehouses, transit hubs, and retail yard locations.',
-        },
-        {
-          name: 'Automated Stock Movements',
-          desc: 'Stock In, Stock Out, Inter-Warehouse Transfers, Damage/Wastage adjustments, and Customer Returns with instant trigger recalculations.',
-        },
-        {
-          name: 'Low Stock & Reorder Alerts',
-          desc: 'Automated minimum threshold alerts preventing critical shortages of clay, coal, flyash, sand, and cement.',
-        },
-      ],
-    },
-    {
-      id: 'procurement',
-      category: 'supply',
-      num: '04',
-      icon: ShoppingCart,
-      title: 'Procurement & Vendor Management',
-      subtitle: 'Streamline raw material purchases, vendor grading, and intake verification.',
-      features: [
-        {
-          name: 'Supplier & Vendor Directory',
-          desc: 'Comprehensive vendor profiles, quality ratings (1–5 stars), material categories, banking data, and outstanding payables.',
-        },
-        {
-          name: 'Purchase Order (PO) Engine',
-          desc: 'End-to-end PO lifecycle management: Draft, Sent, Approved, Partially Received, and Completed with itemized tax calculations.',
-        },
-        {
-          name: 'Goods Receipt Notes (GRN)',
-          desc: 'Material intake inspection and physical quantity validation against approved POs before stock update.',
-        },
-      ],
-    },
-    {
-      id: 'logistics',
-      category: 'operations',
-      num: '05',
-      icon: Truck,
-      title: 'Logistics, Fleet Dispatch & Proof of Delivery (POD)',
-      subtitle: 'Real-time vehicle dispatches, live route telematics, and OTP delivery verification.',
-      features: [
-        {
-          name: 'Delivery Challan Generation',
-          desc: 'Digital e-challan creation directly converted from confirmed sales orders with vehicle and driver assignment.',
-        },
-        {
-          name: 'Driver & Vehicle Allocation',
-          desc: 'Assign dedicated transport trucks, tractors, and drivers per delivery route with trip freight tracking.',
-        },
-        {
-          name: 'Live GPS Tracking',
-          desc: 'Real-time shipment and route tracking to destination construction sites ensuring on-time delivery accountability.',
-        },
-        {
-          name: 'Secure Proof of Delivery (POD)',
-          desc: 'On-site customer OTP verification, digital touch-screen signature capture, and delivery photo uploads.',
-        },
-      ],
-    },
-    {
-      id: 'billing',
-      category: 'commercial',
-      num: '06',
-      icon: FileSpreadsheet,
-      title: 'Commercial Sales & GST Billing Engine',
-      subtitle: 'Government-compliant tax invoicing, instant quotation generator, and e-invoicing.',
-      features: [
-        {
-          name: 'Quotations & Sales Orders',
-          desc: 'Instant proforma quotation generator with 1-click conversion to confirmed sales orders and booking registers.',
-        },
-        {
-          name: 'Automated GST Invoicing',
-          desc: 'Strict compliance with Indian GST regulations with automated CGST, SGST, and IGST tax splits and round-offs.',
-        },
-        {
-          name: 'E-Invoicing & Barcode/QR Generation',
-          desc: 'Generate government-compliant IRN QR codes and barcodes for direct scanning on printed invoices.',
-        },
-        {
-          name: 'Direct PDF Downloads & Printing',
-          desc: 'Instant high-resolution PDF tax invoices, delivery notes, and payment receipts with customizable company branding.',
-        },
-      ],
-    },
-    {
-      id: 'projects',
-      category: 'operations',
-      num: '07',
       icon: HardHat,
-      title: 'Project & BOQ (Bill of Quantities) Management',
-      subtitle: 'Track large-scale developer construction sites, BOQ consumption, and budgets.',
+      title: 'Labour & Wages',
+      subtitle: 'Piece-rate gang billing per 1,000 bricks, daily attendance, advance deductions & weekly payouts.',
       features: [
         {
-          name: 'Construction Site & Project Tracking',
-          desc: 'Track project site budgets, milestone completion percentages, start/end timelines, and assigned site engineers.',
+          name: 'Piece-Rate Pathai & Nikasi Wages',
+          desc: 'Dynamic piece-rate calculation (e.g. ₹750/1k molding, ₹350/1k loading, ₹450/1k firing) for contractor gangs.',
         },
         {
-          name: 'Material Consumption vs BOQ',
-          desc: 'Real-time monitoring of actual materials dispatched and consumed at project sites against planned BOQ limits.',
+          name: 'Contractor & Gang Ledgers',
+          desc: 'Group workforce accounting with daily headcount, daily bricks molded, and team leader wage allocation.',
+        },
+        {
+          name: 'Advance Kharcha Deductions',
+          desc: 'Track daily/weekly cash advances given to worker families with automatic deduction from final weekly settlement.',
+        },
+        {
+          name: '1-Click Wage Registers & Payslips',
+          desc: 'Generate printable weekly wage slips, bank transfer sheets, and cash payout verification receipts.',
         },
       ],
     },
     {
-      id: 'hrms',
+      id: 'dispatch',
       category: 'core',
-      num: '08',
-      icon: UserCheck,
-      title: 'Workforce, Attendance & Payroll (HRMS)',
-      subtitle: 'Geo-verified staff attendance, overtime tracking, and statutory salary processing.',
+      num: '04',
+      icon: Truck,
+      title: 'Dispatch & Vehicles',
+      subtitle: 'Trip challans, truck & tractor loading gate pass, live GPS tracking, and OTP delivery proof.',
       features: [
         {
-          name: 'Employee Directory & KYC Records',
-          desc: 'Comprehensive employee profiles with statutory KYC records (Aadhaar, PAN, Bank Details) and department assignments.',
+          name: 'Delivery Trip Challans & Gate Pass',
+          desc: 'Instant generation of digital loading slips specifying brick count (e.g. 3,500 bricks/trip), vehicle number, and driver.',
         },
         {
-          name: 'Geofenced GPS Attendance & Selfie Check-In',
-          desc: 'Location-verified check-in/out with GPS coordinates, camera selfie validation, and automated overtime hours calculation.',
+          name: 'Vehicle & Freight Management',
+          desc: 'Manage company tipper trucks, tractor-trolleys, and hired third-party logistics with trip freight rates.',
         },
         {
-          name: 'Automated Payroll & Salary Vouchers',
-          desc: 'Basic salary calculation, attendance deductions, allowances, and statutory compliance (PF, ESI, TDS) with printable payslips.',
+          name: 'Live GPS Route Telematics',
+          desc: 'Track transit trucks from the factory kiln directly to builder construction job-sites.',
+        },
+        {
+          name: 'OTP & Digital Signature POD',
+          desc: 'Site engineer OTP verification and digital signature capture ensuring tamper-proof proof of delivery.',
         },
       ],
     },
     {
-      id: 'accounting',
+      id: 'payments',
       category: 'core',
-      num: '09',
-      icon: BarChart4,
-      title: 'Financial Accounting, Reports & Compliance',
-      subtitle: 'Double-entry general ledger, executive analytics, and compliance document vault.',
+      num: '05',
+      icon: IndianRupee,
+      title: 'Payments & Outstanding',
+      subtitle: 'Customer party ledgers, real-time outstanding balances, payment collections, and GST invoicing.',
       features: [
         {
-          name: 'Double-Entry General Ledger',
-          desc: 'Standard chart of accounts, payment vouchers, receipt entries, contra vouchers, and automated trial balances.',
+          name: 'Customer & Builder Party Ledgers',
+          desc: 'Live double-entry customer ledgers showing every dispatched truck, billed invoice, and payment received.',
         },
         {
-          name: 'Real-Time Analytics & Executive Reporting',
-          desc: 'Sales velocity, inventory aging, customer outstanding aging analysis, and GSTR-1/GSTR-3B summaries with 1-click Excel/CSV export.',
+          name: 'Payment Collections & Instant Receipts',
+          desc: 'Record collections via Cash, UPI, Cheque, or NEFT/RTGS with automated WhatsApp/SMS payment receipts.',
         },
         {
-          name: 'Encrypted Document Vault',
-          desc: 'Centralized repository for contracts, GST returns, mining licenses, pollution certificates, and vehicle permits.',
+          name: 'Credit Limit & Overdue Aging',
+          desc: 'Set approved credit limits (e.g. ₹10 Lakhs) and receive overdue alerts for aging balances beyond 30/45 days.',
+        },
+        {
+          name: 'Automated GST Invoices & IRN QR',
+          desc: 'Compliant tax invoices with CGST/SGST/IGST splits, HSN codes, and government IRN QR verification.',
+        },
+      ],
+    },
+    {
+      id: 'reports',
+      category: 'core',
+      num: '06',
+      icon: BarChart3,
+      title: 'Reports & Insights',
+      subtitle: 'Kiln output analytics, fuel & raw material efficiency, cost per 1,000 bricks, and executive audits.',
+      features: [
+        {
+          name: 'Daily Kiln Output vs Target',
+          desc: 'Compare daily production velocity against monthly targets with visual output charts and shift breakdown.',
+        },
+        {
+          name: 'Fuel & Raw Material Efficiency',
+          desc: 'Analyze coal and diesel consumption per 1,000 bricks to detect kiln leakage or raw material wastage.',
+        },
+        {
+          name: 'Cost & Profit Per 1,000 Bricks',
+          desc: 'Calculate true landed cost per thousand bricks factoring raw mix, labour piece-rate, fuel, and transport.',
+        },
+        {
+          name: '1-Click Excel & PDF Audit Reports',
+          desc: 'Export complete production, sales, GST tax summaries, and customer outstanding ledgers in one click.',
         },
       ],
     },
@@ -246,40 +192,17 @@ export const ServicesSection: React.FC = () => {
         <div className="text-center max-w-3xl mx-auto mb-16">
           <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#FEE2E2] text-[#D8232A] text-xs font-black uppercase tracking-wider mb-3">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Full Operational Blueprint</span>
+            <span>BrickOS Core Operational Blueprint</span>
           </div>
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight text-slate-950 font-heading">
-            Complete Services & Operational Capabilities
+            6 Core Services for Brick & Block Factories
           </h2>
           <p className="text-base sm:text-lg text-slate-600 font-medium mt-4">
-            Explore the 9 dedicated operational engines engineered to eliminate spreadsheets, automate GST workflows, and scale manufacturing operations.
+            Everything your manufacturing plant needs: from kiln molding to raw stock, piece-rate wages, dispatch tracking, customer ledgers, and profit insights.
           </p>
-
-          {/* Category Filter Pills */}
-          <div className="flex flex-wrap items-center justify-center gap-2 mt-8">
-            {[
-              { id: 'all', label: 'All 9 Services' },
-              { id: 'core', label: 'Enterprise & Finance' },
-              { id: 'commercial', label: 'CRM & GST Sales' },
-              { id: 'supply', label: 'Inventory & Procurement' },
-              { id: 'operations', label: 'Logistics & Sites' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveCategory(tab.id)}
-                className={`px-4 py-2 rounded-full text-xs font-bold transition-all cursor-pointer ${
-                  activeCategory === tab.id
-                    ? 'bg-[#D8232A] text-white shadow-md shadow-[#D8232A]/20'
-                    : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
         </div>
 
-        {/* 9 Services Grid */}
+        {/* 6 Core Services Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <AnimatePresence mode="popLayout">
             {filteredServices.map((service, index) => {

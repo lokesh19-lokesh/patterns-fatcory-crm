@@ -33,7 +33,7 @@ export const LandingNavbar: React.FC = () => {
         {/* Navigation Links */}
         <div className="hidden lg:flex items-center gap-7 text-sm font-semibold text-slate-700">
           <a href="#hero" className="hover:text-[#D8232A] transition-colors">Overview</a>
-          <a href="#services" className="hover:text-[#D8232A] transition-colors">9 Core Services</a>
+          <a href="#services" className="hover:text-[#D8232A] transition-colors">6 Core Services</a>
           <a href="#workflow" className="hover:text-[#D8232A] transition-colors">How It Works</a>
           <a href="#personas" className="hover:text-[#D8232A] transition-colors">Roles & Access</a>
           <a href="#pricing" className="hover:text-[#D8232A] transition-colors">Pricing</a>

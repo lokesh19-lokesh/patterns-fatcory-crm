@@ -2,6 +2,10 @@ import { UserRole } from '../types';
 
 export type PermissionAction =
   | 'view_dashboard'
+  | 'view_production'
+  | 'manage_production'
+  | 'view_labour_wages'
+  | 'manage_labour_wages'
   | 'manage_company'
   | 'manage_users'
   | 'view_customers'
@@ -39,7 +43,8 @@ export type PermissionAction =
 
 export const ROLE_PERMISSIONS: Record<UserRole, PermissionAction[]> = {
   'Super Admin': [
-    'view_dashboard', 'manage_company', 'manage_users', 'view_customers', 'manage_customers',
+    'view_dashboard', 'view_production', 'manage_production', 'view_labour_wages', 'manage_labour_wages',
+    'manage_company', 'manage_users', 'view_customers', 'manage_customers',
     'view_suppliers', 'manage_suppliers', 'view_products', 'manage_products', 'view_inventory',
     'manage_inventory', 'view_purchase', 'manage_purchase', 'view_sales', 'manage_sales',
     'view_billing', 'manage_billing', 'view_accounting', 'manage_accounting', 'view_projects',
@@ -49,7 +54,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, PermissionAction[]> = {
   ],
 
   'Company Admin': [
-    'view_dashboard', 'manage_company', 'manage_users', 'view_customers', 'manage_customers',
+    'view_dashboard', 'view_production', 'manage_production', 'view_labour_wages', 'manage_labour_wages',
+    'manage_company', 'manage_users', 'view_customers', 'manage_customers',
     'view_suppliers', 'manage_suppliers', 'view_products', 'manage_products', 'view_inventory',
     'manage_inventory', 'view_purchase', 'manage_purchase', 'view_sales', 'manage_sales',
     'view_billing', 'manage_billing', 'view_accounting', 'manage_accounting', 'view_projects',
@@ -59,7 +65,8 @@ export const ROLE_PERMISSIONS: Record<UserRole, PermissionAction[]> = {
   ],
 
   'Manager': [
-    'view_dashboard', 'view_customers', 'manage_customers', 'view_suppliers', 'view_products',
+    'view_dashboard', 'view_production', 'manage_production', 'view_labour_wages', 'manage_labour_wages',
+    'view_customers', 'manage_customers', 'view_suppliers', 'view_products',
     'manage_products', 'view_inventory', 'manage_inventory', 'view_purchase', 'manage_purchase',
     'view_sales', 'manage_sales', 'view_billing', 'view_projects', 'manage_projects',
     'view_delivery', 'manage_delivery', 'view_employees', 'view_attendance', 'view_crm',
@@ -77,17 +84,17 @@ export const ROLE_PERMISSIONS: Record<UserRole, PermissionAction[]> = {
   ],
 
   'Warehouse Manager': [
-    'view_dashboard', 'view_products', 'manage_products', 'view_inventory', 'manage_inventory',
+    'view_dashboard', 'view_production', 'view_products', 'manage_products', 'view_inventory', 'manage_inventory',
     'view_purchase', 'view_delivery', 'manage_delivery'
   ],
 
   'HR': [
-    'view_dashboard', 'view_employees', 'manage_employees', 'view_attendance', 'manage_attendance',
+    'view_dashboard', 'view_labour_wages', 'manage_labour_wages', 'view_employees', 'manage_employees', 'view_attendance', 'manage_attendance',
     'view_payroll', 'manage_payroll', 'view_documents'
   ],
 
   'Accountant': [
-    'view_dashboard', 'view_customers', 'view_suppliers', 'view_billing', 'manage_billing',
+    'view_dashboard', 'view_labour_wages', 'view_customers', 'view_suppliers', 'view_billing', 'manage_billing',
     'view_accounting', 'manage_accounting', 'view_payroll', 'view_reports', 'view_documents'
   ],
 

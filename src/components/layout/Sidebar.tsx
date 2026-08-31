@@ -2,26 +2,24 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
+  Layers,
+  Boxes,
+  HardHat,
+  Truck,
+  IndianRupee,
+  BarChart3,
   Building2,
   Users,
-  Truck,
   Package,
-  Boxes,
   ShoppingCart,
   FileText,
-  Receipt,
-  Calculator,
-  HardHat,
-  MapPin,
   UserCheck,
-  DollarSign,
-  TrendingUp,
-  BarChart3,
+  ShieldCheck,
   FolderLock,
   Settings,
-  ShieldCheck,
   LogOut,
-  Layers,
+  Sliders,
+  TrendingUp,
   LucideIcon,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -33,6 +31,7 @@ interface NavItem {
   path: string;
   icon: LucideIcon;
   requiredPermission: PermissionAction;
+  highlight?: boolean;
 }
 
 interface NavGroup {
@@ -50,45 +49,39 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
 
   const navGroups: NavGroup[] = [
     {
-      title: 'CORE OPERATIONAL HQ',
+      title: 'EXECUTIVE COMMAND',
       items: [
-        { name: 'Dashboard', path: '/app/dashboard', icon: LayoutDashboard, requiredPermission: 'view_dashboard' },
-        { name: 'Company & Branches', path: '/app/company', icon: Building2, requiredPermission: 'manage_company' },
+        { name: 'Dashboard Overview', path: '/app/dashboard', icon: LayoutDashboard, requiredPermission: 'view_dashboard' },
+      ],
+    },
+    {
+      title: '6 CORE FACTORY SERVICES (BRICKOS)',
+      items: [
+        { name: 'Production Management', path: '/app/production', icon: Layers, requiredPermission: 'view_production', highlight: true },
+        { name: 'Stock & Raw Materials', path: '/app/inventory', icon: Boxes, requiredPermission: 'view_inventory', highlight: true },
+        { name: 'Labour & Wages', path: '/app/labour-wages', icon: HardHat, requiredPermission: 'view_labour_wages', highlight: true },
+        { name: 'Dispatch & Vehicles', path: '/app/delivery', icon: Truck, requiredPermission: 'view_delivery', highlight: true },
+        { name: 'Payments & Outstanding', path: '/app/billing', icon: IndianRupee, requiredPermission: 'view_billing', highlight: true },
+        { name: 'Reports & Insights', path: '/app/reports', icon: BarChart3, requiredPermission: 'view_reports', highlight: true },
+      ],
+    },
+    {
+      title: 'COMMERCIAL & PARTNERS',
+      items: [
+        { name: 'Customers & Credit', path: '/app/customers', icon: Users, requiredPermission: 'view_customers' },
+        { name: 'Suppliers & Vendors', path: '/app/suppliers', icon: Truck, requiredPermission: 'view_suppliers' },
+        { name: 'Products & Price Master', path: '/app/products', icon: Package, requiredPermission: 'view_products' },
+        { name: 'Procurement (PO/GRN)', path: '/app/purchase', icon: ShoppingCart, requiredPermission: 'view_purchase' },
+        { name: 'Sales & Quotations', path: '/app/sales', icon: FileText, requiredPermission: 'view_sales' },
         { name: 'CRM & Lead Pipeline', path: '/app/crm', icon: TrendingUp, requiredPermission: 'view_crm' },
       ],
     },
     {
-      title: 'PARTNERS & MATERIAL MASTER',
+      title: 'ENTERPRISE & WORKFORCE',
       items: [
-        { name: 'Customers & Credit', path: '/app/customers', icon: Users, requiredPermission: 'view_customers' },
-        { name: 'Suppliers & Vendors', path: '/app/suppliers', icon: Truck, requiredPermission: 'view_suppliers' },
-        { name: 'Products & HSN Tax', path: '/app/products', icon: Package, requiredPermission: 'view_products' },
-        { name: 'Multi-Warehouse Inventory', path: '/app/inventory', icon: Boxes, requiredPermission: 'view_inventory' },
-      ],
-    },
-    {
-      title: 'COMMERCIAL & LOGISTICS',
-      items: [
-        { name: 'Procurement (PO/GRN)', path: '/app/purchase', icon: ShoppingCart, requiredPermission: 'view_purchase' },
-        { name: 'Sales & Quotations', path: '/app/sales', icon: FileText, requiredPermission: 'view_sales' },
-        { name: 'GST Billing Engine', path: '/app/billing', icon: Receipt, requiredPermission: 'view_billing' },
-        { name: 'Delivery Dispatch & GPS', path: '/app/delivery', icon: MapPin, requiredPermission: 'view_delivery' },
-      ],
-    },
-    {
-      title: 'PROJECTS & WORKFORCE',
-      items: [
-        { name: 'Project & BOQ Manager', path: '/app/projects', icon: HardHat, requiredPermission: 'view_projects' },
-        { name: 'Employees & HR', path: '/app/employees', icon: UserCheck, requiredPermission: 'view_employees' },
+        { name: 'Staff & HR Records', path: '/app/employees', icon: UserCheck, requiredPermission: 'view_employees' },
         { name: 'Geofenced Attendance', path: '/app/attendance', icon: ShieldCheck, requiredPermission: 'view_attendance' },
-        { name: 'Payroll & Statutory Tax', path: '/app/payroll', icon: DollarSign, requiredPermission: 'view_payroll' },
-      ],
-    },
-    {
-      title: 'FINANCE & GOVERNANCE',
-      items: [
-        { name: 'Accounting & Ledger', path: '/app/accounting', icon: Calculator, requiredPermission: 'view_accounting' },
-        { name: 'Reports & Analytics', path: '/app/reports', icon: BarChart3, requiredPermission: 'view_reports' },
+        { name: 'Company & Plants', path: '/app/company', icon: Building2, requiredPermission: 'manage_company' },
         { name: 'Document Vault', path: '/app/documents', icon: FolderLock, requiredPermission: 'view_documents' },
         { name: 'Settings & Audit Logs', path: '/app/settings', icon: Settings, requiredPermission: 'view_settings' },
       ],
@@ -145,14 +138,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
           </div>
         </div>
         <p className="text-[10px] font-bold text-[#D8232A] truncate uppercase tracking-wider text-center px-2 bg-red-50 py-0.5 rounded-md w-full border border-red-100">
-          {company?.name || 'Apex Aggregates Pvt Ltd'}
+          {company?.name || 'Apex Aggregates & Bricks'}
         </p>
       </div>
 
       {/* Role Selector Simulator */}
       <div className="px-3 py-2 bg-slate-50 border-b border-slate-200">
         <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1">
-          <Layers className="w-3 h-3 text-[#D8232A]" /> Active Role View
+          <Sliders className="w-3 h-3 text-[#D8232A]" /> Active Role View
         </label>
         <select
           value={role}
