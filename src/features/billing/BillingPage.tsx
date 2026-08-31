@@ -1,19 +1,14 @@
 import React, { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
-import { Modal } from '../../components/ui/Modal';
 import { formatCurrency, formatDate } from '../../lib/utils';
-import { Receipt, Download, Printer, Share2, Mail, Send, CheckCircle2, QrCode, FileText, Plus } from 'lucide-react';
+import { Download, Send, QrCode } from 'lucide-react';
 import { Invoice } from '../../types';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 
 export const BillingPage: React.FC = () => {
-  const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
-
-  const [invoices, setInvoices] = useState<Invoice[]>([
+  const [invoices] = useState<Invoice[]>([
     {
       id: 'inv_1',
       company_id: 'comp_77283',
@@ -57,16 +52,16 @@ export const BillingPage: React.FC = () => {
   const generatePdf = (inv: Invoice) => {
     const doc = new jsPDF();
     doc.setFontSize(18);
-    doc.setTextColor(2, 132, 199);
-    doc.text('Apex Construction Materials Pvt Ltd', 14, 20);
+    doc.setTextColor(216, 35, 42); // #D8232A Patterns Red
+    doc.text('Patterns ERP Cloud - Tax Invoice', 14, 20);
 
     doc.setFontSize(10);
     doc.setTextColor(100);
-    doc.text('GSTIN: 27AAACA12341Z5 | PAN: AAACA12341', 14, 26);
+    doc.text('Apex Construction Materials Pvt Ltd | GSTIN: 27AAACA12341Z5', 14, 26);
     doc.text('TAX INVOICE - GST COMPLIANT', 14, 32);
 
     doc.setLineWidth(0.5);
-    doc.setDrawColor(200);
+    doc.setDrawColor(220);
     doc.line(14, 36, 196, 36);
 
     doc.setFontSize(10);
@@ -82,7 +77,7 @@ export const BillingPage: React.FC = () => {
       body: [
         ['TMT Steel Bars Fe550D (12mm)', '72142090', '45 MT', '₹63,000', '18%', `₹${inv.grand_total.toLocaleString('en-IN')}`],
       ],
-      headStyles: { fillColor: [2, 132, 199] },
+      headStyles: { fillColor: [216, 35, 42] },
     });
 
     const finalY = (doc as any).lastAutoTable.finalY || 100;
@@ -90,7 +85,7 @@ export const BillingPage: React.FC = () => {
     doc.text(`CGST (9%): ₹${inv.cgst.toLocaleString('en-IN')}`, 130, finalY + 22);
     doc.text(`SGST (9%): ₹${inv.sgst.toLocaleString('en-IN')}`, 130, finalY + 29);
     doc.setFontSize(12);
-    doc.setTextColor(2, 132, 199);
+    doc.setTextColor(216, 35, 42);
     doc.text(`Grand Total: ₹${inv.grand_total.toLocaleString('en-IN')}`, 130, finalY + 38);
 
     doc.save(`${inv.invoice_number.replace(/\//g, '_')}.pdf`);
@@ -101,8 +96,8 @@ export const BillingPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">GST Billing & Tax Invoice Engine</h1>
-          <p className="text-xs text-slate-400">Generate e-Invoices with IRN, CGST/SGST/IGST split, PDF generation & WhatsApp sharing</p>
+          <h1 className="text-2xl font-black text-slate-950 font-heading">GST Billing & Tax Invoice Engine</h1>
+          <p className="text-xs text-slate-500 font-medium">Generate e-Invoices with IRN, CGST/SGST/IGST split, PDF generation & WhatsApp sharing</p>
         </div>
       </div>
 
@@ -112,55 +107,55 @@ export const BillingPage: React.FC = () => {
           <CardTitle>Issued GST Tax Invoices</CardTitle>
         </CardHeader>
         <CardContent className="p-0 overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase font-semibold">
+          <table className="w-full text-left text-xs text-slate-700">
+            <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold text-[11px]">
               <tr>
-                <th className="p-3">Invoice No & IRN</th>
-                <th className="p-3">Customer & GSTIN</th>
-                <th className="p-3">Date / Due</th>
-                <th className="p-3 text-right">Subtotal</th>
-                <th className="p-3 text-right">GST Total</th>
-                <th className="p-3 text-right">Grand Total</th>
-                <th className="p-3 text-center">Status</th>
-                <th className="p-3 text-center">Actions</th>
+                <th className="p-3.5">Invoice No & IRN</th>
+                <th className="p-3.5">Customer & GSTIN</th>
+                <th className="p-3.5">Date / Due</th>
+                <th className="p-3.5 text-right">Subtotal</th>
+                <th className="p-3.5 text-right">GST Total</th>
+                <th className="p-3.5 text-right">Grand Total</th>
+                <th className="p-3.5 text-center">Status</th>
+                <th className="p-3.5 text-center">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-slate-100">
               {invoices.map((inv) => (
-                <tr key={inv.id} className="hover:bg-slate-800/40 transition-colors">
-                  <td className="p-3 font-semibold text-slate-100">
-                    <div className="font-mono text-sky-400 font-bold">{inv.invoice_number}</div>
-                    <div className="text-[10px] text-slate-500 font-mono flex items-center gap-1">
-                      <QrCode className="w-3 h-3 text-amber-400" /> IRN Verified
+                <tr key={inv.id} className="hover:bg-slate-50/80 transition-colors">
+                  <td className="p-3.5 font-bold text-slate-900">
+                    <div className="font-mono text-[#D8232A] font-bold">{inv.invoice_number}</div>
+                    <div className="text-[10px] text-emerald-700 font-bold flex items-center gap-1 mt-0.5">
+                      <QrCode className="w-3 h-3 text-emerald-600" /> IRN Verified
                     </div>
                   </td>
-                  <td className="p-3">
-                    <div className="font-semibold text-slate-200">{inv.customer_name}</div>
-                    <div className="text-[10px] font-mono text-slate-400">{inv.customer_gstin}</div>
+                  <td className="p-3.5">
+                    <div className="font-bold text-slate-900">{inv.customer_name}</div>
+                    <div className="text-[11px] font-mono text-slate-500">{inv.customer_gstin}</div>
                   </td>
-                  <td className="p-3">
-                    <div>{formatDate(inv.invoice_date)}</div>
-                    <div className="text-[10px] text-amber-400 font-medium">Due: {formatDate(inv.due_date)}</div>
+                  <td className="p-3.5">
+                    <div className="text-slate-700">{formatDate(inv.invoice_date)}</div>
+                    <div className="text-[11px] text-amber-600 font-bold">Due: {formatDate(inv.due_date)}</div>
                   </td>
-                  <td className="p-3 text-right text-slate-300">{formatCurrency(inv.subtotal)}</td>
-                  <td className="p-3 text-right text-sky-400 font-semibold">{formatCurrency(inv.cgst + inv.sgst + inv.igst)}</td>
-                  <td className="p-3 text-right font-extrabold text-emerald-400">{formatCurrency(inv.grand_total)}</td>
-                  <td className="p-3 text-center">
+                  <td className="p-3.5 text-right text-slate-600 font-medium">{formatCurrency(inv.subtotal)}</td>
+                  <td className="p-3.5 text-right text-[#D8232A] font-bold">{formatCurrency(inv.cgst + inv.sgst + inv.igst)}</td>
+                  <td className="p-3.5 text-right font-black text-slate-950">{formatCurrency(inv.grand_total)}</td>
+                  <td className="p-3.5 text-center">
                     <Badge variant={inv.status === 'Paid' ? 'success' : 'warning'}>{inv.status}</Badge>
                   </td>
-                  <td className="p-3 text-center">
-                    <div className="flex items-center justify-center gap-1">
+                  <td className="p-3.5 text-center">
+                    <div className="flex items-center justify-center gap-1.5">
                       <button
                         onClick={() => generatePdf(inv)}
                         title="Download PDF Invoice"
-                        className="p-1.5 text-slate-400 hover:text-sky-400 hover:bg-slate-800 rounded transition-colors"
+                        className="p-1.5 text-slate-500 hover:text-[#D8232A] hover:bg-red-50 rounded-lg transition-colors border border-slate-200"
                       >
                         <Download className="w-4 h-4" />
                       </button>
                       <button
                         onClick={() => alert(`WhatsApp Invoice link sent to ${inv.customer_name}`)}
                         title="Share via WhatsApp"
-                        className="p-1.5 text-slate-400 hover:text-emerald-400 hover:bg-slate-800 rounded transition-colors"
+                        className="p-1.5 text-slate-500 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-colors border border-slate-200"
                       >
                         <Send className="w-4 h-4" />
                       </button>

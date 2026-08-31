@@ -6,8 +6,8 @@ import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
 import { Tabs } from '../../components/ui/Tabs';
 import { useAuth } from '../../contexts/AuthContext';
-import { Building2, MapPin, Users, Landmark, FileText, Plus, Edit, ShieldCheck, Mail, Phone, Check } from 'lucide-react';
-import { Branch, UserProfile, UserRole } from '../../types';
+import { Building2, MapPin, Users, Landmark, FileText, Plus, Edit, ShieldCheck, Mail, Phone } from 'lucide-react';
+import { Branch, UserProfile } from '../../types';
 
 export const CompanyPage: React.FC = () => {
   const { company } = useAuth();
@@ -15,7 +15,7 @@ export const CompanyPage: React.FC = () => {
   const [isAddBranchOpen, setIsAddBranchOpen] = useState(false);
   const [isAddUserOpen, setIsAddUserOpen] = useState(false);
 
-  const [branches, setBranches] = useState<Branch[]>([
+  const [branches] = useState<Branch[]>([
     {
       id: 'br_1',
       company_id: 'comp_77283',
@@ -57,7 +57,7 @@ export const CompanyPage: React.FC = () => {
     },
   ]);
 
-  const [users, setUsers] = useState<UserProfile[]>([
+  const [users] = useState<UserProfile[]>([
     {
       id: 'u_1',
       company_id: 'comp_77283',
@@ -107,8 +107,8 @@ export const CompanyPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">Company & Branch Management</h1>
-          <p className="text-xs text-slate-400">Manage tenant master records, multi-branch network, GSTIN & user authorizations</p>
+          <h1 className="text-2xl font-black text-slate-950 font-heading">Company & Branch Management</h1>
+          <p className="text-xs text-slate-500 font-medium">Manage tenant master records, multi-branch network, GSTIN & user authorizations</p>
         </div>
         {activeTab === 'branches' && (
           <Button variant="primary" size="sm" icon={<Plus className="w-4 h-4" />} onClick={() => setIsAddBranchOpen(true)}>
@@ -136,24 +136,34 @@ export const CompanyPage: React.FC = () => {
               </Button>
             </CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex items-center gap-4 p-4 bg-slate-950/60 rounded-xl border border-slate-800">
-                <img src="/assets/logo.png" alt="Company Logo" className="h-14 w-auto object-contain bg-slate-900 p-2 rounded-lg border border-slate-800" />
+              <div className="flex items-center gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-200">
+                <div className="p-3 bg-white border border-slate-200 rounded-xl shadow-xs shrink-0">
+                  <svg width="34" height="25" viewBox="0 0 44 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path
+                      d="M34.5 28H10C5.58172 28 2 24.4183 2 20C2 15.9329 5.03457 12.5746 8.97495 12.0628C10.4282 6.32626 15.6517 2 21.8571 2C28.7844 2 34.524 7.21319 35.3211 13.9317C39.6384 14.8052 42.8571 18.636 42.8571 23.2C42.8571 28.0601 38.9172 32 34.0571 32"
+                      stroke="#D8232A"
+                      strokeWidth="3.2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-100">{company?.name}</h3>
-                  <p className="text-xs text-slate-400">Construction Material Supplier & Ready Mix Concrete Producer</p>
+                  <h3 className="text-base font-black text-slate-950 font-heading">{company?.name}</h3>
+                  <p className="text-xs text-slate-500 font-medium">Construction Material Supplier & Ready Mix Concrete Producer</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <Input label="GSTIN Number" value={company?.gstin} readOnly icon={<FileText className="w-4 h-4" />} />
-                <Input label="PAN Number" value={company?.pan} readOnly icon={<ShieldCheck className="w-4 h-4" />} />
-                <Input label="Official Email" value={company?.email} readOnly icon={<Mail className="w-4 h-4" />} />
-                <Input label="Phone Contact" value={company?.phone} readOnly icon={<Phone className="w-4 h-4" />} />
+                <Input label="GSTIN Number" value={company?.gstin} readOnly icon={<FileText className="w-4 h-4 text-[#D8232A]" />} />
+                <Input label="PAN Number" value={company?.pan} readOnly icon={<ShieldCheck className="w-4 h-4 text-[#D8232A]" />} />
+                <Input label="Official Email" value={company?.email} readOnly icon={<Mail className="w-4 h-4 text-[#D8232A]" />} />
+                <Input label="Phone Contact" value={company?.phone} readOnly icon={<Phone className="w-4 h-4 text-[#D8232A]" />} />
               </div>
 
-              <div className="pt-4 border-t border-slate-800">
-                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Registered Corporate Address</h4>
-                <p className="text-xs text-slate-400 leading-relaxed bg-slate-950 p-3 rounded-lg border border-slate-800">
+              <div className="pt-4 border-t border-slate-100">
+                <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-2">Registered Corporate Address</h4>
+                <p className="text-xs text-slate-700 leading-relaxed bg-slate-50 p-3 rounded-xl border border-slate-200">
                   {company?.address.street}, {company?.address.city}, {company?.address.state} - {company?.address.pincode}, {company?.address.country}
                 </p>
               </div>
@@ -164,26 +174,26 @@ export const CompanyPage: React.FC = () => {
           <Card>
             <CardHeader>
               <CardTitle>Bank Account Details (For GST Invoices)</CardTitle>
-              <Landmark className="w-5 h-5 text-sky-400" />
+              <Landmark className="w-5 h-5 text-[#D8232A]" />
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="p-4 bg-sky-950/20 rounded-xl border border-sky-500/20 space-y-3">
+              <div className="p-4 bg-red-50/40 rounded-2xl border border-red-100 space-y-3">
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-slate-400">Bank Name</span>
-                  <p className="text-sm font-bold text-slate-100">{company?.bank_details.bank_name}</p>
+                  <span className="text-[10px] uppercase font-bold text-slate-500">Bank Name</span>
+                  <p className="text-sm font-black text-slate-950">{company?.bank_details.bank_name}</p>
                 </div>
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-slate-400">Account Number</span>
-                  <p className="text-sm font-mono font-bold text-sky-400">{company?.bank_details.account_number}</p>
+                  <span className="text-[10px] uppercase font-bold text-slate-500">Account Number</span>
+                  <p className="text-sm font-mono font-bold text-[#D8232A]">{company?.bank_details.account_number}</p>
                 </div>
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-slate-400">IFSC Code</span>
-                    <p className="text-xs font-mono text-slate-200">{company?.bank_details.ifsc}</p>
+                    <span className="text-[10px] uppercase font-bold text-slate-500">IFSC Code</span>
+                    <p className="text-xs font-mono font-bold text-slate-800">{company?.bank_details.ifsc}</p>
                   </div>
                   <div>
-                    <span className="text-[10px] uppercase font-bold text-slate-400">Branch</span>
-                    <p className="text-xs text-slate-200">{company?.bank_details.branch}</p>
+                    <span className="text-[10px] uppercase font-bold text-slate-500">Branch</span>
+                    <p className="text-xs font-semibold text-slate-800">{company?.bank_details.branch}</p>
                   </div>
                 </div>
               </div>
@@ -196,28 +206,28 @@ export const CompanyPage: React.FC = () => {
       {activeTab === 'branches' && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {branches.map((b) => (
-            <Card key={b.id} className="hover:border-slate-700 transition-all">
+            <Card key={b.id} className="hover:border-slate-300 hover:shadow-md transition-all">
               <CardHeader>
                 <div className="flex items-center gap-2">
-                  <MapPin className="w-4 h-4 text-sky-400" />
+                  <MapPin className="w-4 h-4 text-[#D8232A]" />
                   <CardTitle>{b.name}</CardTitle>
                 </div>
-                {b.is_headquarters && <Badge variant="success">Headquarters</Badge>}
+                {b.is_headquarters && <Badge variant="brand">Headquarters</Badge>}
               </CardHeader>
-              <CardContent className="space-y-3 text-xs text-slate-300">
-                <div className="flex justify-between border-b border-slate-800 pb-2">
-                  <span className="text-slate-400">Branch Code:</span>
-                  <span className="font-mono font-bold text-slate-200">{b.code}</span>
+              <CardContent className="space-y-3 text-xs text-slate-700">
+                <div className="flex justify-between border-b border-slate-100 pb-2">
+                  <span className="text-slate-500 font-medium">Branch Code:</span>
+                  <span className="font-mono font-bold text-slate-900">{b.code}</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-800 pb-2">
-                  <span className="text-slate-400">City / State:</span>
-                  <span>{b.city}, {b.state}</span>
+                <div className="flex justify-between border-b border-slate-100 pb-2">
+                  <span className="text-slate-500 font-medium">City / State:</span>
+                  <span className="font-semibold text-slate-800">{b.city}, {b.state}</span>
                 </div>
-                <div className="flex justify-between border-b border-slate-800 pb-2">
-                  <span className="text-slate-400">Phone:</span>
-                  <span>{b.phone}</span>
+                <div className="flex justify-between border-b border-slate-100 pb-2">
+                  <span className="text-slate-500 font-medium">Phone:</span>
+                  <span className="font-semibold text-slate-800">{b.phone}</span>
                 </div>
-                <p className="text-slate-400 bg-slate-950 p-2.5 rounded border border-slate-800 mt-2">{b.address}</p>
+                <p className="text-slate-600 bg-slate-50 p-2.5 rounded-xl border border-slate-200 mt-2">{b.address}</p>
               </CardContent>
             </Card>
           ))}
@@ -231,32 +241,32 @@ export const CompanyPage: React.FC = () => {
             <CardTitle>Authorized Personnel & Role Assignments</CardTitle>
           </CardHeader>
           <CardContent className="p-0 overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase font-semibold">
+            <table className="w-full text-left text-xs text-slate-700">
+              <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold text-[11px]">
                 <tr>
-                  <th className="p-3">User</th>
-                  <th className="p-3">Role</th>
-                  <th className="p-3">Department</th>
-                  <th className="p-3">Contact</th>
-                  <th className="p-3 text-center">Status</th>
+                  <th className="p-3.5">User</th>
+                  <th className="p-3.5">Role</th>
+                  <th className="p-3.5">Department</th>
+                  <th className="p-3.5">Contact</th>
+                  <th className="p-3.5 text-center">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-slate-100">
                 {users.map((u) => (
-                  <tr key={u.id} className="hover:bg-slate-800/40">
-                    <td className="p-3 font-semibold text-slate-100 flex items-center gap-2">
-                      <div className="w-7 h-7 rounded-full bg-sky-500/20 text-sky-400 font-bold flex items-center justify-center border border-sky-500/30">
+                  <tr key={u.id} className="hover:bg-slate-50/80">
+                    <td className="p-3.5 font-bold text-slate-900 flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-full bg-red-50 text-[#D8232A] font-black flex items-center justify-center border border-red-200">
                         {u.full_name[0]}
                       </div>
                       <div>
                         <div>{u.full_name}</div>
-                        <div className="text-[10px] text-slate-400">{u.email}</div>
+                        <div className="text-[10px] text-slate-500 font-normal">{u.email}</div>
                       </div>
                     </td>
-                    <td className="p-3 font-bold text-sky-400">{u.role}</td>
-                    <td className="p-3">{u.department}</td>
-                    <td className="p-3">{u.phone}</td>
-                    <td className="p-3 text-center">
+                    <td className="p-3.5 font-bold text-[#D8232A]">{u.role}</td>
+                    <td className="p-3.5 font-medium text-slate-700">{u.department}</td>
+                    <td className="p-3.5 font-medium text-slate-700">{u.phone}</td>
+                    <td className="p-3.5 text-center">
                       <Badge variant={u.status === 'Active' ? 'success' : 'danger'}>{u.status}</Badge>
                     </td>
                   </tr>
@@ -289,8 +299,8 @@ export const CompanyPage: React.FC = () => {
           <Input label="Official Email" type="email" placeholder="rahul@apexmaterials.com" required />
           <Input label="Phone Number" placeholder="+91 98765 00000" required />
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">Assign User Role</label>
-            <select className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-100">
+            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Assign User Role</label>
+            <select className="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-xs font-semibold text-slate-900 focus:border-[#D8232A]">
               <option value="Sales Executive">Sales Executive</option>
               <option value="Purchase Manager">Purchase Manager</option>
               <option value="Warehouse Manager">Warehouse Manager</option>

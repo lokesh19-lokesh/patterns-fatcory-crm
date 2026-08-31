@@ -5,7 +5,7 @@ import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
 import { Tabs } from '../../components/ui/Tabs';
 import { formatDateTime } from '../../lib/utils';
-import { Settings, ShieldCheck, History, Sliders, Database, Key } from 'lucide-react';
+import { History, Sliders } from 'lucide-react';
 
 export const SettingsPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState('audit');
@@ -25,8 +25,8 @@ export const SettingsPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">System Settings & Audit Controls</h1>
-          <p className="text-xs text-slate-400">Security event logs, RLS policies verification, invoice formatting & system backups</p>
+          <h1 className="text-2xl font-black text-slate-950 font-heading">System Settings & Audit Controls</h1>
+          <p className="text-xs text-slate-500 font-medium">Security event logs, RLS policies verification, invoice formatting & system backups</p>
         </div>
       </div>
 
@@ -38,24 +38,24 @@ export const SettingsPage: React.FC = () => {
             <CardTitle>System Activity Audit Log</CardTitle>
           </CardHeader>
           <CardContent className="p-0 overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase font-semibold">
+            <table className="w-full text-left text-xs text-slate-700">
+              <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold text-[11px]">
                 <tr>
-                  <th className="p-3">Timestamp</th>
-                  <th className="p-3">User</th>
-                  <th className="p-3">Action Description</th>
-                  <th className="p-3">Entity</th>
-                  <th className="p-3">IP Address</th>
+                  <th className="p-3.5">Timestamp</th>
+                  <th className="p-3.5">User</th>
+                  <th className="p-3.5">Action Description</th>
+                  <th className="p-3.5">Entity</th>
+                  <th className="p-3.5">IP Address</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-slate-100">
                 {auditLogs.map((log) => (
-                  <tr key={log.id} className="hover:bg-slate-800/40 transition-colors">
-                    <td className="p-3 font-mono text-slate-400">{formatDateTime(log.time)}</td>
-                    <td className="p-3 font-semibold text-slate-200">{log.user}</td>
-                    <td className="p-3 font-medium text-sky-400">{log.action}</td>
-                    <td className="p-3"><Badge variant="info">{log.entity}</Badge></td>
-                    <td className="p-3 font-mono text-slate-500">{log.ip}</td>
+                  <tr key={log.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="p-3.5 font-mono text-slate-500 font-medium">{formatDateTime(log.time)}</td>
+                    <td className="p-3.5 font-bold text-slate-900">{log.user}</td>
+                    <td className="p-3.5 font-semibold text-[#D8232A]">{log.action}</td>
+                    <td className="p-3.5"><Badge variant="info">{log.entity}</Badge></td>
+                    <td className="p-3.5 font-mono text-slate-500">{log.ip}</td>
                   </tr>
                 ))}
               </tbody>

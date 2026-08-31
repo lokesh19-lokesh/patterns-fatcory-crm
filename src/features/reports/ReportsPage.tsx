@@ -3,7 +3,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Ca
 import { Button } from '../../components/ui/Button';
 import { Tabs } from '../../components/ui/Tabs';
 import { formatCurrency } from '../../lib/utils';
-import { BarChart3, FileSpreadsheet, Download, Printer, Filter, Calendar } from 'lucide-react';
+import { FileSpreadsheet, Download } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid } from 'recharts';
 
 export const ReportsPage: React.FC = () => {
@@ -31,8 +31,8 @@ export const ReportsPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">Multi-Dimensional Enterprise Reporting</h1>
-          <p className="text-xs text-slate-400">Executive analytics, GST tax filings, inventory turnover and delivery SLA metrics</p>
+          <h1 className="text-2xl font-black text-slate-950 font-heading">Multi-Dimensional Enterprise Reporting</h1>
+          <p className="text-xs text-slate-500 font-medium">Executive analytics, GST tax filings, inventory turnover and delivery SLA metrics</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" icon={<FileSpreadsheet className="w-4 h-4" />}>
@@ -53,14 +53,14 @@ export const ReportsPage: React.FC = () => {
         <CardContent className="h-80 pt-4">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={salesReportData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.5} />
-              <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} />
-              <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={(val) => `₹${val / 100000}L`} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" opacity={0.8} />
+              <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
+              <YAxis stroke="#64748b" fontSize={12} tickFormatter={(val) => `₹${val / 100000}L`} />
               <Tooltip
-                contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px', fontSize: '12px' }}
+                contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '12px', fontSize: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
                 formatter={(val: number) => formatCurrency(val)}
               />
-              <Bar dataKey="revenue" fill="#0284c7" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="revenue" fill="#D8232A" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </CardContent>

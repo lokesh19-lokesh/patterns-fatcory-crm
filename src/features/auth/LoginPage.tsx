@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { Lock, Mail, Building, KeyRound, ShieldCheck, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Lock, Mail, Building, KeyRound, ShieldCheck, ArrowRight } from 'lucide-react';
 import { UserRole } from '../../types';
 
 export const LoginPage: React.FC = () => {
@@ -25,28 +25,46 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
-      {/* Background Glows */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-sky-500/10 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-10 right-10 w-80 h-80 bg-amber-500/10 blur-[120px] rounded-full pointer-events-none" />
+    <div className="min-h-screen bg-[#FAFAFC] flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden font-sans">
+      {/* Background Soft Glows */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-red-100/50 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-10 right-10 w-80 h-80 bg-amber-100/50 blur-[120px] rounded-full pointer-events-none" />
 
-      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-4 z-10 mt-8">
-        <div className="inline-flex items-center justify-center p-4 bg-slate-900 border border-slate-800 rounded-2xl shadow-xl">
-          <img src="/assets/logo.png" alt="Patterns Factory OS" className="h-20 w-auto object-contain" />
+      <div className="sm:mx-auto sm:w-full sm:max-w-md text-center space-y-3 z-10">
+        <div className="inline-flex items-center justify-center p-3 bg-white border border-slate-200 rounded-2xl shadow-sm">
+          <div className="flex items-center gap-3">
+            <svg width="40" height="30" viewBox="0 0 44 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M34.5 28H10C5.58172 28 2 24.4183 2 20C2 15.9329 5.03457 12.5746 8.97495 12.0628C10.4282 6.32626 15.6517 2 21.8571 2C28.7844 2 34.524 7.21319 35.3211 13.9317C39.6384 14.8052 42.8571 18.636 42.8571 23.2C42.8571 28.0601 38.9172 32 34.0571 32"
+                stroke="#D8232A"
+                strokeWidth="3.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+            <div className="text-left">
+              <span className="text-2xl font-black tracking-tight text-slate-950 font-heading block leading-none">
+                Patterns
+              </span>
+              <span className="text-[10px] font-bold text-slate-500 tracking-wider uppercase block">
+                ERP Cloud Software
+              </span>
+            </div>
+          </div>
         </div>
-        <p className="text-xs font-semibold text-sky-400 uppercase tracking-widest">
-          Enterprise Multi-Tenant Construction CRM & ERP
+        <p className="text-xs font-bold text-slate-600 uppercase tracking-wider">
+          Enterprise Cloud Management & ERP Portal
         </p>
       </div>
 
       <div className="mt-6 sm:mx-auto sm:w-full sm:max-w-md z-10 px-4">
-        <div className="bg-slate-900/90 backdrop-blur-xl py-8 px-6 shadow-2xl border border-slate-800 rounded-2xl space-y-6">
+        <div className="bg-white py-8 px-6 shadow-xl border border-slate-200/90 rounded-2xl space-y-6">
           {/* Auth Method Tabs */}
-          <div className="flex border-b border-slate-800 pb-3">
+          <div className="flex border-b border-slate-200 pb-2">
             <button
               onClick={() => setMode('password')}
               className={`flex-1 text-center py-2 text-xs font-bold transition-all border-b-2 ${
-                mode === 'password' ? 'border-sky-500 text-sky-400' : 'border-transparent text-slate-400 hover:text-slate-200'
+                mode === 'password' ? 'border-[#D8232A] text-[#D8232A]' : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
               Email & Password
@@ -54,7 +72,7 @@ export const LoginPage: React.FC = () => {
             <button
               onClick={() => setMode('otp')}
               className={`flex-1 text-center py-2 text-xs font-bold transition-all border-b-2 ${
-                mode === 'otp' ? 'border-sky-500 text-sky-400' : 'border-transparent text-slate-400 hover:text-slate-200'
+                mode === 'otp' ? 'border-[#D8232A] text-[#D8232A]' : 'border-transparent text-slate-500 hover:text-slate-800'
               }`}
             >
               Instant OTP Login
@@ -92,7 +110,7 @@ export const LoginPage: React.FC = () => {
               />
             ) : (
               <div className="space-y-2">
-                <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wide">
+                <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide">
                   Mobile / OTP Authorization
                 </label>
                 {!otpSent ? (
@@ -112,7 +130,7 @@ export const LoginPage: React.FC = () => {
                       value={otpCode}
                       onChange={(e) => setOtpCode(e.target.value)}
                     />
-                    <Button type="button" variant="amber" className="shrink-0 text-xs">
+                    <Button type="button" variant="primary" className="shrink-0 text-xs">
                       Verify
                     </Button>
                   </div>
@@ -121,13 +139,13 @@ export const LoginPage: React.FC = () => {
             )}
 
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wide mb-1.5">
+              <label className="block text-xs font-bold text-slate-700 uppercase tracking-wide mb-1.5">
                 Select Initial Role View
               </label>
               <select
                 value={selectedRole}
                 onChange={(e) => setSelectedRole(e.target.value as UserRole)}
-                className="w-full bg-slate-950 border border-slate-800 text-slate-100 rounded-lg p-2 text-xs font-semibold focus:outline-none focus:border-sky-500"
+                className="w-full bg-white border border-slate-300 text-slate-900 rounded-lg p-2.5 text-xs font-semibold focus:outline-none focus:border-[#D8232A] focus:ring-1 focus:ring-[#D8232A]"
               >
                 <option value="Super Admin">Super Admin (God Mode — All Tenants)</option>
                 <option value="Company Admin">Company Admin (Full Tenant Access)</option>
@@ -146,7 +164,7 @@ export const LoginPage: React.FC = () => {
             <Button
               type="submit"
               variant="primary"
-              className="w-full mt-2"
+              className="w-full mt-2 py-2.5 text-sm font-bold"
               isLoading={isLoading}
               icon={<ArrowRight className="w-4 h-4" />}
             >
@@ -154,11 +172,11 @@ export const LoginPage: React.FC = () => {
             </Button>
           </form>
 
-          <div className="pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-            <span className="flex items-center gap-1 text-emerald-400">
-              <ShieldCheck className="w-4 h-4" /> 256-bit Encrypted RLS
+          <div className="pt-4 border-t border-slate-200 flex items-center justify-between text-xs text-slate-500">
+            <span className="flex items-center gap-1.5 text-emerald-700 font-semibold">
+              <ShieldCheck className="w-4 h-4 text-emerald-600" /> 256-bit Encrypted RLS
             </span>
-            <button className="hover:text-slate-200 underline">Forgot Password?</button>
+            <button className="hover:text-slate-800 font-semibold underline">Forgot Password?</button>
           </div>
         </div>
       </div>

@@ -4,14 +4,14 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
-import { formatCurrency, formatDate } from '../../lib/utils';
-import { UserCheck, Plus, Search, Mail, Phone, DollarSign, ShieldCheck } from 'lucide-react';
+import { formatCurrency } from '../../lib/utils';
+import { Plus } from 'lucide-react';
 import { Employee } from '../../types';
 
 export const EmployeesPage: React.FC = () => {
   const [isAddEmpOpen, setIsAddEmpOpen] = useState(false);
 
-  const [employees, setEmployees] = useState<Employee[]>([
+  const [employees] = useState<Employee[]>([
     {
       id: 'emp_1',
       company_id: 'comp_77283',
@@ -53,8 +53,8 @@ export const EmployeesPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">Employee Master & HR Directory</h1>
-          <p className="text-xs text-slate-400">Employee profiles, statutory details, departments and basic salary breakdown</p>
+          <h1 className="text-2xl font-black text-slate-950 font-heading">Employee Master & HR Directory</h1>
+          <p className="text-xs text-slate-500 font-medium">Employee profiles, statutory details, departments and basic salary breakdown</p>
         </div>
         <Button variant="primary" size="sm" icon={<Plus className="w-4 h-4" />} onClick={() => setIsAddEmpOpen(true)}>
           Register Employee
@@ -67,32 +67,32 @@ export const EmployeesPage: React.FC = () => {
           <CardTitle>Staff Directory</CardTitle>
         </CardHeader>
         <CardContent className="p-0 overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase font-semibold">
+          <table className="w-full text-left text-xs text-slate-700">
+            <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold text-[11px]">
               <tr>
-                <th className="p-3">Emp Code & Name</th>
-                <th className="p-3">Department</th>
-                <th className="p-3">Designation</th>
-                <th className="p-3">Contact</th>
-                <th className="p-3 text-right">Basic Salary</th>
-                <th className="p-3 text-center">Status</th>
+                <th className="p-3.5">Emp Code & Name</th>
+                <th className="p-3.5">Department</th>
+                <th className="p-3.5">Designation</th>
+                <th className="p-3.5">Contact</th>
+                <th className="p-3.5 text-right">Basic Salary</th>
+                <th className="p-3.5 text-center">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-slate-100">
               {employees.map((e) => (
-                <tr key={e.id} className="hover:bg-slate-800/40 transition-colors">
-                  <td className="p-3 font-semibold text-slate-100">
+                <tr key={e.id} className="hover:bg-slate-50/80 transition-colors">
+                  <td className="p-3.5 font-bold text-slate-900">
                     <div>{e.full_name}</div>
-                    <div className="text-[10px] font-mono text-sky-400">{e.emp_code}</div>
+                    <div className="text-[10px] font-mono text-[#D8232A] font-bold">{e.emp_code}</div>
                   </td>
-                  <td className="p-3"><Badge variant="info">{e.department}</Badge></td>
-                  <td className="p-3 font-medium text-slate-200">{e.designation}</td>
-                  <td className="p-3">
-                    <div>{e.email}</div>
-                    <div className="text-[10px] text-slate-400">{e.phone}</div>
+                  <td className="p-3.5"><Badge variant="info">{e.department}</Badge></td>
+                  <td className="p-3.5 font-semibold text-slate-800">{e.designation}</td>
+                  <td className="p-3.5">
+                    <div className="font-medium text-slate-800">{e.email}</div>
+                    <div className="text-[10px] text-slate-500">{e.phone}</div>
                   </td>
-                  <td className="p-3 text-right font-bold text-emerald-400">{formatCurrency(e.basic_salary)}</td>
-                  <td className="p-3 text-center"><Badge variant="success">{e.status}</Badge></td>
+                  <td className="p-3.5 text-right font-black text-slate-950">{formatCurrency(e.basic_salary)}</td>
+                  <td className="p-3.5 text-center"><Badge variant="success">{e.status}</Badge></td>
                 </tr>
               ))}
             </tbody>

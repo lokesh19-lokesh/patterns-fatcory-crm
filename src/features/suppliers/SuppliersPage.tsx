@@ -5,14 +5,14 @@ import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
 import { formatCurrency } from '../../lib/utils';
-import { Truck, Plus, Search, Star, Phone, Mail, Landmark, ShieldCheck } from 'lucide-react';
+import { Plus, Search, Star } from 'lucide-react';
 import { Supplier } from '../../types';
 
 export const SuppliersPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddSupplierOpen, setIsAddSupplierOpen] = useState(false);
 
-  const [suppliers, setSuppliers] = useState<Supplier[]>([
+  const [suppliers] = useState<Supplier[]>([
     {
       id: 'sup_201',
       company_id: 'comp_77283',
@@ -82,8 +82,8 @@ export const SuppliersPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">Supplier & Vendor Management</h1>
-          <p className="text-xs text-slate-400">Material supplier profiles, performance ratings, GSTIN and pending bills ledger</p>
+          <h1 className="text-2xl font-black text-slate-950 font-heading">Supplier & Vendor Management</h1>
+          <p className="text-xs text-slate-500 font-medium">Material supplier profiles, performance ratings, GSTIN and pending bills ledger</p>
         </div>
         <Button variant="primary" size="sm" icon={<Plus className="w-4 h-4" />} onClick={() => setIsAddSupplierOpen(true)}>
           Add New Supplier
@@ -91,7 +91,7 @@ export const SuppliersPage: React.FC = () => {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex items-center justify-between bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+      <div className="flex items-center justify-between bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
         <div className="w-full sm:w-80">
           <Input
             icon={<Search className="w-4 h-4" />}
@@ -105,37 +105,37 @@ export const SuppliersPage: React.FC = () => {
       {/* Suppliers Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {filteredSuppliers.map((s) => (
-          <Card key={s.id} className="hover:border-slate-700 transition-all flex flex-col justify-between">
+          <Card key={s.id} className="hover:border-slate-300 hover:shadow-md transition-all flex flex-col justify-between">
             <CardHeader>
               <div>
                 <CardTitle>{s.name}</CardTitle>
                 <div className="flex items-center gap-1.5 mt-1">
-                  <div className="flex text-amber-400">
+                  <div className="flex text-amber-500">
                     {Array.from({ length: s.rating }).map((_, i) => (
                       <Star key={i} className="w-3.5 h-3.5 fill-current" />
                     ))}
                   </div>
-                  <span className="text-[10px] text-slate-400">({s.rating}.0 Rating)</span>
+                  <span className="text-[10px] font-bold text-slate-500">({s.rating}.0 Rating)</span>
                 </div>
               </div>
               <Badge variant="info">{s.categories[0]}</Badge>
             </CardHeader>
-            <CardContent className="space-y-3 text-xs text-slate-300">
-              <div className="flex justify-between border-b border-slate-800 pb-2">
-                <span className="text-slate-400">Contact Person:</span>
-                <span className="font-semibold text-slate-200">{s.contact_person}</span>
+            <CardContent className="space-y-3 text-xs text-slate-700">
+              <div className="flex justify-between border-b border-slate-100 pb-2">
+                <span className="text-slate-500 font-medium">Contact Person:</span>
+                <span className="font-bold text-slate-900">{s.contact_person}</span>
               </div>
-              <div className="flex justify-between border-b border-slate-800 pb-2">
-                <span className="text-slate-400">Phone:</span>
-                <span>{s.phone}</span>
+              <div className="flex justify-between border-b border-slate-100 pb-2">
+                <span className="text-slate-500 font-medium">Phone:</span>
+                <span className="font-semibold text-slate-800">{s.phone}</span>
               </div>
-              <div className="flex justify-between border-b border-slate-800 pb-2">
-                <span className="text-slate-400">GSTIN:</span>
-                <span className="font-mono text-slate-200">{s.gstin}</span>
+              <div className="flex justify-between border-b border-slate-100 pb-2">
+                <span className="text-slate-500 font-medium">GSTIN:</span>
+                <span className="font-mono font-bold text-slate-800">{s.gstin}</span>
               </div>
-              <div className="p-3 bg-slate-950 rounded-lg border border-slate-800 flex justify-between items-center">
-                <span className="text-slate-400">Outstanding Bill:</span>
-                <span className="font-bold text-amber-400 text-sm">{formatCurrency(s.outstanding_balance)}</span>
+              <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-200 flex justify-between items-center">
+                <span className="text-slate-600 font-medium">Outstanding Bill:</span>
+                <span className="font-black text-amber-600 text-sm">{formatCurrency(s.outstanding_balance)}</span>
               </div>
             </CardContent>
           </Card>

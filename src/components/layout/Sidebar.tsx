@@ -23,7 +23,6 @@ import {
   LogOut,
   Layers,
   LucideIcon,
-  Lock,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { UserRole } from '../../types';
@@ -120,27 +119,45 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
 
   return (
     <aside
-      className={`fixed top-0 left-0 bottom-0 z-40 w-64 bg-slate-950 border-r border-slate-800/80 transform transition-transform duration-300 ease-in-out flex flex-col ${
+      className={`fixed top-0 left-0 bottom-0 z-40 w-64 bg-white border-r border-slate-200 transform transition-transform duration-300 ease-in-out flex flex-col shadow-xs ${
         isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'
       }`}
     >
-      {/* Brand Logo & Company Title */}
-      <div className="py-4 border-b border-slate-800/80 flex flex-col items-center justify-center bg-slate-900/60 gap-2">
-        <img src="/assets/logo.png" alt="Patterns Factory OS" className="h-10 w-auto object-contain shrink-0" />
-        <p className="text-[10px] font-semibold text-sky-400 truncate uppercase tracking-wider text-center px-2">
-          {company?.name || 'Apex Aggregates'}
+      {/* Brand Logo & Company Title (Matching Landing Page) */}
+      <div className="p-4 border-b border-slate-200 flex flex-col items-center justify-center bg-white gap-1.5">
+        <div className="flex items-center gap-2.5">
+          <svg width="34" height="25" viewBox="0 0 44 32" fill="none" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
+            <path
+              d="M34.5 28H10C5.58172 28 2 24.4183 2 20C2 15.9329 5.03457 12.5746 8.97495 12.0628C10.4282 6.32626 15.6517 2 21.8571 2C28.7844 2 34.524 7.21319 35.3211 13.9317C39.6384 14.8052 42.8571 18.636 42.8571 23.2C42.8571 28.0601 38.9172 32 34.0571 32"
+              stroke="#D8232A"
+              strokeWidth="3.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+          <div className="flex flex-col">
+            <span className="text-lg font-black tracking-tight text-slate-950 font-heading leading-tight">
+              Patterns
+            </span>
+            <span className="text-[9px] font-bold text-slate-500 tracking-wider uppercase -mt-0.5">
+              ERP Cloud Software
+            </span>
+          </div>
+        </div>
+        <p className="text-[10px] font-bold text-[#D8232A] truncate uppercase tracking-wider text-center px-2 bg-red-50 py-0.5 rounded-md w-full border border-red-100">
+          {company?.name || 'Apex Aggregates Pvt Ltd'}
         </p>
       </div>
 
-      {/* Role Selector Simulator for Demo */}
-      <div className="px-3 py-2 bg-slate-900/90 border-b border-slate-800">
-        <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1 flex items-center gap-1">
-          <Layers className="w-3 h-3 text-amber-400" /> Active Role Simulation
+      {/* Role Selector Simulator */}
+      <div className="px-3 py-2 bg-slate-50 border-b border-slate-200">
+        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center gap-1">
+          <Layers className="w-3 h-3 text-[#D8232A]" /> Active Role View
         </label>
         <select
           value={role}
           onChange={(e) => switchRole(e.target.value as UserRole)}
-          className="w-full bg-slate-950 border border-slate-700/80 text-xs font-semibold text-slate-200 rounded px-2 py-1 focus:outline-none focus:border-sky-500"
+          className="w-full bg-white border border-slate-300 text-xs font-semibold text-slate-800 rounded-lg px-2 py-1.5 focus:outline-none focus:border-[#D8232A] focus:ring-1 focus:ring-[#D8232A]"
         >
           {allRoles.map((r) => (
             <option key={r} value={r}>
@@ -154,7 +171,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-5 scrollbar-thin">
         {visibleGroups.map((group) => (
           <div key={group.title} className="space-y-1">
-            <h2 className="px-2 text-[10px] font-bold text-slate-500 uppercase tracking-widest">
+            <h2 className="px-2 text-[10px] font-extrabold text-slate-400 uppercase tracking-widest">
               {group.title}
             </h2>
             <div className="space-y-0.5 mt-1">
@@ -168,8 +185,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
                     className={({ isActive }) =>
                       `flex items-center gap-3 px-3 py-2 text-xs font-semibold rounded-lg transition-all ${
                         isActive
-                          ? 'bg-sky-600 text-white shadow-md shadow-sky-600/30'
-                          : 'text-slate-400 hover:text-slate-100 hover:bg-slate-900'
+                          ? 'bg-[#D8232A] text-white shadow-md shadow-[#D8232A]/20 font-bold'
+                          : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
                       }`
                     }
                   >
@@ -184,22 +201,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
       </div>
 
       {/* User Footer Profile */}
-      <div className="p-3 border-t border-slate-800/80 bg-slate-900/50 flex items-center justify-between">
+      <div className="p-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
         <div className="flex items-center gap-2.5 overflow-hidden">
           <img
             src={user?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
             alt="Avatar"
-            className="w-8 h-8 rounded-full border border-sky-500/40 object-cover shrink-0"
+            className="w-8 h-8 rounded-full border border-slate-300 object-cover shrink-0"
           />
           <div className="overflow-hidden text-left">
-            <p className="text-xs font-bold text-slate-200 truncate">{user?.full_name}</p>
-            <p className="text-[10px] text-slate-400 truncate">{role}</p>
+            <p className="text-xs font-bold text-slate-900 truncate">{user?.full_name}</p>
+            <p className="text-[10px] text-slate-500 font-semibold truncate">{role}</p>
           </div>
         </div>
         <button
           onClick={logout}
           title="Sign Out"
-          className="p-1.5 text-slate-400 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
+          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
         >
           <LogOut className="w-4 h-4" />
         </button>

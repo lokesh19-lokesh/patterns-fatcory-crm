@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
-import { FolderLock, FileText, Upload, ShieldCheck, Download, Trash } from 'lucide-react';
+import { FileText, Upload, Download } from 'lucide-react';
 
 export const DocumentsPage: React.FC = () => {
   const documents = [
@@ -15,8 +15,8 @@ export const DocumentsPage: React.FC = () => {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">Document Management Vault</h1>
-          <p className="text-xs text-slate-400">Secure encrypted storage for GST, PAN, customer contracts, PO bills & employee files</p>
+          <h1 className="text-2xl font-black text-slate-950 font-heading">Document Management Vault</h1>
+          <p className="text-xs text-slate-500 font-medium">Secure encrypted storage for GST, PAN, customer contracts, PO bills & employee files</p>
         </div>
         <Button variant="primary" size="sm" icon={<Upload className="w-4 h-4" />}>
           Upload Document
@@ -28,28 +28,28 @@ export const DocumentsPage: React.FC = () => {
           <CardTitle>Vault Encrypted Repository</CardTitle>
         </CardHeader>
         <CardContent className="p-0 overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase font-semibold">
+          <table className="w-full text-left text-xs text-slate-700">
+            <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold text-[11px]">
               <tr>
-                <th className="p-3">File Name</th>
-                <th className="p-3">Category</th>
-                <th className="p-3">File Size</th>
-                <th className="p-3">Upload Date</th>
-                <th className="p-3 text-center">Action</th>
+                <th className="p-3.5">File Name</th>
+                <th className="p-3.5">Category</th>
+                <th className="p-3.5">File Size</th>
+                <th className="p-3.5">Upload Date</th>
+                <th className="p-3.5 text-center">Action</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-slate-100">
               {documents.map((d) => (
-                <tr key={d.id} className="hover:bg-slate-800/40 transition-colors">
-                  <td className="p-3 font-semibold text-slate-100 flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-sky-400 shrink-0" />
+                <tr key={d.id} className="hover:bg-slate-50/80 transition-colors">
+                  <td className="p-3.5 font-bold text-slate-900 flex items-center gap-2">
+                    <FileText className="w-4 h-4 text-[#D8232A] shrink-0" />
                     <span>{d.name}</span>
                   </td>
-                  <td className="p-3"><Badge variant="info">{d.category}</Badge></td>
-                  <td className="p-3 font-mono text-slate-400">{d.size}</td>
-                  <td className="p-3 font-mono text-slate-400">{d.date}</td>
-                  <td className="p-3 text-center">
-                    <button className="p-1.5 text-sky-400 hover:bg-slate-800 rounded">
+                  <td className="p-3.5"><Badge variant="info">{d.category}</Badge></td>
+                  <td className="p-3.5 font-mono text-slate-500 font-medium">{d.size}</td>
+                  <td className="p-3.5 font-mono text-slate-500 font-medium">{d.date}</td>
+                  <td className="p-3.5 text-center">
+                    <button className="p-1.5 text-slate-600 hover:text-[#D8232A] hover:bg-red-50 rounded-lg border border-slate-200 transition-colors">
                       <Download className="w-4 h-4" />
                     </button>
                   </td>

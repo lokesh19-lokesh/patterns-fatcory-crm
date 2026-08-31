@@ -15,8 +15,6 @@ import {
   Building,
   Plus,
   FileSpreadsheet,
-  ArrowUpRight,
-  ArrowDownRight,
   ChevronRight,
   HardHat,
 } from 'lucide-react';
@@ -28,8 +26,6 @@ import {
   YAxis,
   Tooltip,
   CartesianGrid,
-  BarChart,
-  Bar,
 } from 'recharts';
 
 export const DashboardPage: React.FC = () => {
@@ -67,18 +63,18 @@ export const DashboardPage: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* Top Banner Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-slate-900/90 border border-slate-800 p-6 rounded-2xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">
         <div>
           <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-sky-500/20 text-sky-400 border border-sky-500/30">
+            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-red-50 text-[#D8232A] border border-red-200">
               Live Operations
             </span>
-            <span className="text-xs text-slate-400">Plant HQ: Mumbai Industrial Belt</span>
+            <span className="text-xs text-slate-500 font-semibold">Plant HQ: Mumbai Industrial Belt</span>
           </div>
-          <h1 className="text-2xl font-extrabold text-slate-100 tracking-tight mt-1">
+          <h1 className="text-2xl font-black text-slate-950 tracking-tight mt-1 font-heading">
             Executive Construction Dashboard
           </h1>
-          <p className="text-xs text-slate-400">Real-time telemetry for Sales, Material Stock, Vehicles & Payments</p>
+          <p className="text-xs text-slate-500">Real-time telemetry for Sales, Material Stock, Vehicles & Payments</p>
         </div>
 
         <div className="flex items-center gap-2">
@@ -107,7 +103,7 @@ export const DashboardPage: React.FC = () => {
           change="+6 orders"
           isPositive={true}
           icon={<ShoppingCart className="w-5 h-5" />}
-          color="sky"
+          color="brand"
         />
         <StatCard
           title="Monthly Gross Revenue"
@@ -131,7 +127,7 @@ export const DashboardPage: React.FC = () => {
           value="8 Vehicles"
           subtitle="Live GPS Tracking"
           icon={<Truck className="w-5 h-5" />}
-          color="sky"
+          color="brand"
         />
         <StatCard
           title="Low Stock Warning"
@@ -164,13 +160,13 @@ export const DashboardPage: React.FC = () => {
           <CardHeader>
             <div>
               <CardTitle>Revenue vs Material Procurement Trend</CardTitle>
-              <p className="text-xs text-slate-400 mt-0.5">Monthly breakdown of gross sales vs supplier costs (FY 2024-25)</p>
+              <p className="text-xs text-slate-500 mt-0.5">Monthly breakdown of gross sales vs supplier costs (FY 2024-25)</p>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="flex items-center gap-1.5 text-xs text-sky-400 font-semibold">
-                <span className="w-2.5 h-2.5 rounded-full bg-sky-500 inline-block" /> Revenue
+            <div className="flex items-center gap-3">
+              <span className="flex items-center gap-1.5 text-xs text-[#D8232A] font-bold">
+                <span className="w-2.5 h-2.5 rounded-full bg-[#D8232A] inline-block" /> Revenue
               </span>
-              <span className="flex items-center gap-1.5 text-xs text-amber-400 font-semibold">
+              <span className="flex items-center gap-1.5 text-xs text-amber-600 font-bold">
                 <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block" /> Purchases
               </span>
             </div>
@@ -180,22 +176,22 @@ export const DashboardPage: React.FC = () => {
               <AreaChart data={salesData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#0284c7" stopOpacity={0.4} />
-                    <stop offset="95%" stopColor="#0284c7" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#D8232A" stopOpacity={0.25} />
+                    <stop offset="95%" stopColor="#D8232A" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="colorPur" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.4} />
+                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.2} />
                     <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.5} />
-                <XAxis dataKey="month" stroke="#94a3b8" fontSize={12} />
-                <YAxis stroke="#94a3b8" fontSize={12} tickFormatter={(val) => `₹${val / 100000}L`} />
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" opacity={0.8} />
+                <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
+                <YAxis stroke="#64748b" fontSize={12} tickFormatter={(val) => `₹${val / 100000}L`} />
                 <Tooltip
-                  contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '8px', fontSize: '12px' }}
+                  contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '12px', fontSize: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
                   formatter={(val: number) => formatCurrency(val)}
                 />
-                <Area type="monotone" dataKey="revenue" stroke="#0284c7" strokeWidth={2} fillOpacity={1} fill="url(#colorRev)" />
+                <Area type="monotone" dataKey="revenue" stroke="#D8232A" strokeWidth={2.5} fillOpacity={1} fill="url(#colorRev)" />
                 <Area type="monotone" dataKey="purchases" stroke="#f59e0b" strokeWidth={2} fillOpacity={1} fill="url(#colorPur)" />
               </AreaChart>
             </ResponsiveContainer>
@@ -208,19 +204,19 @@ export const DashboardPage: React.FC = () => {
             <CardTitle>Live Activity Stream</CardTitle>
             <Badge variant="info">Realtime</Badge>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-3">
             {recentActivities.map((act) => (
-              <div key={act.id} className="flex items-start gap-3 p-3 bg-slate-950/60 rounded-lg border border-slate-800/80">
-                <div className="p-2 bg-sky-500/10 text-sky-400 rounded-lg shrink-0 mt-0.5">
+              <div key={act.id} className="flex items-start gap-3 p-3 bg-slate-50/80 rounded-xl border border-slate-200/80">
+                <div className="p-2 bg-red-50 text-[#D8232A] rounded-lg shrink-0 mt-0.5 border border-red-100">
                   <HardHat className="w-4 h-4" />
                 </div>
                 <div className="flex-1 overflow-hidden">
-                  <p className="text-xs font-semibold text-slate-200 leading-snug">{act.text}</p>
-                  <p className="text-[10px] text-slate-500 mt-1">{act.time}</p>
+                  <p className="text-xs font-semibold text-slate-800 leading-snug">{act.text}</p>
+                  <p className="text-[10px] text-slate-500 mt-1 font-medium">{act.time}</p>
                 </div>
               </div>
             ))}
-            <Button variant="ghost" className="w-full text-xs text-sky-400">
+            <Button variant="ghost" className="w-full text-xs text-[#D8232A] font-bold">
               View All Logs <ChevronRight className="w-3.5 h-3.5 ml-1" />
             </Button>
           </CardContent>
@@ -238,22 +234,22 @@ export const DashboardPage: React.FC = () => {
             </Button>
           </CardHeader>
           <CardContent className="p-0 overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase font-semibold">
+            <table className="w-full text-left text-xs text-slate-700">
+              <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold text-[11px]">
                 <tr>
-                  <th className="p-3">Product</th>
-                  <th className="p-3">Category</th>
-                  <th className="p-3 text-right">Revenue</th>
-                  <th className="p-3 text-center">Stock</th>
+                  <th className="p-3.5">Product</th>
+                  <th className="p-3.5">Category</th>
+                  <th className="p-3.5 text-right">Revenue</th>
+                  <th className="p-3.5 text-center">Stock</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-slate-100">
                 {topProducts.map((p) => (
-                  <tr key={p.name} className="hover:bg-slate-800/40">
-                    <td className="p-3 font-semibold text-slate-100">{p.name}</td>
-                    <td className="p-3">{p.category}</td>
-                    <td className="p-3 text-right font-bold text-sky-400">{formatCurrency(p.revenue)}</td>
-                    <td className="p-3 text-center">
+                  <tr key={p.name} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="p-3.5 font-bold text-slate-900">{p.name}</td>
+                    <td className="p-3.5 text-slate-500 font-medium">{p.category}</td>
+                    <td className="p-3.5 text-right font-black text-slate-950">{formatCurrency(p.revenue)}</td>
+                    <td className="p-3.5 text-center">
                       <Badge variant={p.status === 'Low' ? 'danger' : 'success'}>{p.stock}</Badge>
                     </td>
                   </tr>
@@ -272,22 +268,22 @@ export const DashboardPage: React.FC = () => {
             </Button>
           </CardHeader>
           <CardContent className="p-0 overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-300">
-              <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase font-semibold">
+            <table className="w-full text-left text-xs text-slate-700">
+              <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold text-[11px]">
                 <tr>
-                  <th className="p-3">Customer</th>
-                  <th className="p-3 text-right">Outstanding</th>
-                  <th className="p-3 text-right">Credit Limit</th>
-                  <th className="p-3 text-center">Health</th>
+                  <th className="p-3.5">Customer</th>
+                  <th className="p-3.5 text-right">Outstanding</th>
+                  <th className="p-3.5 text-right">Credit Limit</th>
+                  <th className="p-3.5 text-center">Health</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/60">
+              <tbody className="divide-y divide-slate-100">
                 {topCustomers.map((c) => (
-                  <tr key={c.name} className="hover:bg-slate-800/40">
-                    <td className="p-3 font-semibold text-slate-100">{c.name}</td>
-                    <td className="p-3 text-right font-bold text-amber-400">{formatCurrency(c.outstanding)}</td>
-                    <td className="p-3 text-right">{formatCurrency(c.creditLimit)}</td>
-                    <td className="p-3 text-center">
+                  <tr key={c.name} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="p-3.5 font-bold text-slate-900">{c.name}</td>
+                    <td className="p-3.5 text-right font-bold text-amber-600">{formatCurrency(c.outstanding)}</td>
+                    <td className="p-3.5 text-right text-slate-600 font-medium">{formatCurrency(c.creditLimit)}</td>
+                    <td className="p-3.5 text-center">
                       <Badge variant={c.status === 'Near Limit' ? 'warning' : 'success'}>{c.status}</Badge>
                     </td>
                   </tr>

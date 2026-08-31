@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
+import { Card } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
 import { formatCurrency } from '../../lib/utils';
-import { TrendingUp, Plus, Phone, Mail, Calendar, Building, UserCheck } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { Lead } from '../../types';
 
 export const CrmPage: React.FC = () => {
   const [isAddLeadOpen, setIsAddLeadOpen] = useState(false);
 
-  const [leads, setLeads] = useState<Lead[]>([
+  const [leads] = useState<Lead[]>([
     {
       id: 'lead_1',
       company_id: 'comp_77283',
@@ -53,8 +53,8 @@ export const CrmPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">Construction CRM & Lead Pipeline</h1>
-          <p className="text-xs text-slate-400">Manage builder leads, site inspection requests, follow-ups & commercial deals</p>
+          <h1 className="text-2xl font-black text-slate-950 font-heading">Construction CRM & Lead Pipeline</h1>
+          <p className="text-xs text-slate-500 font-medium">Manage builder leads, site inspection requests, follow-ups & commercial deals</p>
         </div>
         <Button variant="primary" size="sm" icon={<Plus className="w-4 h-4" />} onClick={() => setIsAddLeadOpen(true)}>
           Capture New Lead
@@ -66,21 +66,21 @@ export const CrmPage: React.FC = () => {
         {stages.map((stage) => {
           const stageLeads = leads.filter((l) => l.stage === stage);
           return (
-            <div key={stage} className="bg-slate-950/80 p-3 rounded-xl border border-slate-800 space-y-3 min-w-[200px]">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-                <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">{stage}</span>
+            <div key={stage} className="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-3 min-w-[200px]">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">{stage}</span>
                 <Badge variant="neutral">{stageLeads.length}</Badge>
               </div>
 
               <div className="space-y-3">
                 {stageLeads.map((lead) => (
-                  <Card key={lead.id} className="p-3 space-y-2 bg-slate-900 border-slate-800 hover:border-sky-500/50 transition-all">
-                    <h4 className="text-xs font-bold text-slate-100 leading-snug">{lead.title}</h4>
-                    <p className="text-[10px] text-sky-400 font-semibold">{lead.company_name}</p>
-                    <p className="text-[11px] text-slate-400 line-clamp-2">{lead.material_requirement}</p>
-                    <div className="pt-2 border-t border-slate-800 flex justify-between items-center text-[10px]">
-                      <span className="text-emerald-400 font-bold">{formatCurrency(lead.estimated_value)}</span>
-                      <span className="text-amber-400">{lead.next_followup_date}</span>
+                  <Card key={lead.id} className="p-3.5 space-y-2 bg-white border-slate-200 hover:border-red-200 hover:shadow-md transition-all">
+                    <h4 className="text-xs font-bold text-slate-900 leading-snug">{lead.title}</h4>
+                    <p className="text-[11px] text-[#D8232A] font-bold">{lead.company_name}</p>
+                    <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed">{lead.material_requirement}</p>
+                    <div className="pt-2 border-t border-slate-100 flex justify-between items-center text-[10px]">
+                      <span className="text-emerald-700 font-black">{formatCurrency(lead.estimated_value)}</span>
+                      <span className="text-amber-600 font-bold">{lead.next_followup_date}</span>
                     </div>
                   </Card>
                 ))}

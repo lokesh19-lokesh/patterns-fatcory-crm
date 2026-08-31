@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
+import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
 import { formatCurrency } from '../../lib/utils';
-import { Package, Plus, Search, Barcode, QrCode, AlertTriangle, FileSpreadsheet, Tag, DollarSign } from 'lucide-react';
+import { Plus, Search, Barcode } from 'lucide-react';
 import { Product } from '../../types';
 
 export const ProductsPage: React.FC = () => {
@@ -13,7 +13,7 @@ export const ProductsPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
 
-  const [products, setProducts] = useState<Product[]>([
+  const [products] = useState<Product[]>([
     {
       id: 'prod_1',
       company_id: 'comp_77283',
@@ -104,8 +104,8 @@ export const ProductsPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">Construction Product Master Catalog</h1>
-          <p className="text-xs text-slate-400">SKU inventory master, HSN codes, GST tax brackets, barcodes & price lists</p>
+          <h1 className="text-2xl font-black text-slate-950 font-heading">Construction Product Master Catalog</h1>
+          <p className="text-xs text-slate-500 font-medium">SKU inventory master, HSN codes, GST tax brackets, barcodes & price lists</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" icon={<Barcode className="w-4 h-4" />}>
@@ -118,7 +118,7 @@ export const ProductsPage: React.FC = () => {
       </div>
 
       {/* Category Filter & Search Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
         <div className="w-full sm:w-80">
           <Input
             icon={<Search className="w-4 h-4" />}
@@ -132,10 +132,10 @@ export const ProductsPage: React.FC = () => {
             <button
               key={cat}
               onClick={() => setSelectedCategory(cat)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-colors ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold whitespace-nowrap transition-colors ${
                 selectedCategory === cat
-                  ? 'bg-sky-500 text-white'
-                  : 'bg-slate-800 text-slate-400 hover:text-slate-200'
+                  ? 'bg-[#D8232A] text-white shadow-xs'
+                  : 'bg-slate-100 text-slate-600 hover:text-slate-900 hover:bg-slate-200'
               }`}
             >
               {cat}
@@ -147,40 +147,40 @@ export const ProductsPage: React.FC = () => {
       {/* Products Table */}
       <Card>
         <CardContent className="p-0 overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase font-semibold">
+          <table className="w-full text-left text-xs text-slate-700">
+            <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold text-[11px]">
               <tr>
-                <th className="p-3">SKU & Product Name</th>
-                <th className="p-3">Category / Brand</th>
-                <th className="p-3">HSN Code</th>
-                <th className="p-3 text-center">GST %</th>
-                <th className="p-3 text-right">Purchase Price</th>
-                <th className="p-3 text-right">Selling Price</th>
-                <th className="p-3 text-center">Current Stock</th>
-                <th className="p-3 text-center">Stock Level</th>
+                <th className="p-3.5">SKU & Product Name</th>
+                <th className="p-3.5">Category / Brand</th>
+                <th className="p-3.5">HSN Code</th>
+                <th className="p-3.5 text-center">GST %</th>
+                <th className="p-3.5 text-right">Purchase Price</th>
+                <th className="p-3.5 text-right">Selling Price</th>
+                <th className="p-3.5 text-center">Current Stock</th>
+                <th className="p-3.5 text-center">Stock Level</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-slate-100">
               {filteredProducts.map((p) => {
                 const isLowStock = p.current_stock <= p.minimum_stock;
                 return (
-                  <tr key={p.id} className="hover:bg-slate-800/40 transition-colors">
-                    <td className="p-3 font-semibold text-slate-100">
+                  <tr key={p.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="p-3.5 font-bold text-slate-900">
                       <div>{p.name}</div>
-                      <div className="text-[10px] font-mono text-sky-400">SKU: {p.sku}</div>
+                      <div className="text-[10px] font-mono text-[#D8232A] font-bold">SKU: {p.sku}</div>
                     </td>
-                    <td className="p-3">
-                      <div className="font-semibold text-slate-200">{p.category}</div>
-                      <div className="text-[10px] text-slate-400">{p.brand}</div>
+                    <td className="p-3.5">
+                      <div className="font-bold text-slate-900">{p.category}</div>
+                      <div className="text-[10px] text-slate-500 font-medium">{p.brand}</div>
                     </td>
-                    <td className="p-3 font-mono">{p.hsn_code}</td>
-                    <td className="p-3 text-center font-bold text-slate-200">{p.gst_rate}%</td>
-                    <td className="p-3 text-right font-medium text-slate-300">{formatCurrency(p.purchase_price)} / {p.unit}</td>
-                    <td className="p-3 text-right font-bold text-emerald-400">{formatCurrency(p.selling_price)} / {p.unit}</td>
-                    <td className="p-3 text-center font-extrabold text-slate-100">
-                      {p.current_stock} <span className="text-[10px] text-slate-400 font-normal">{p.unit}</span>
+                    <td className="p-3.5 font-mono font-semibold text-slate-700">{p.hsn_code}</td>
+                    <td className="p-3.5 text-center font-bold text-slate-900">{p.gst_rate}%</td>
+                    <td className="p-3.5 text-right font-medium text-slate-600">{formatCurrency(p.purchase_price)} / {p.unit}</td>
+                    <td className="p-3.5 text-right font-black text-slate-950">{formatCurrency(p.selling_price)} / {p.unit}</td>
+                    <td className="p-3.5 text-center font-black text-slate-900">
+                      {p.current_stock} <span className="text-[10px] text-slate-500 font-medium">{p.unit}</span>
                     </td>
-                    <td className="p-3 text-center">
+                    <td className="p-3.5 text-center">
                       <Badge variant={isLowStock ? 'danger' : 'success'}>
                         {isLowStock ? 'Low Stock' : 'Optimal'}
                       </Badge>
@@ -203,8 +203,8 @@ export const ProductsPage: React.FC = () => {
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">Category</label>
-              <select className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-100">
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Category</label>
+              <select className="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-xs font-semibold text-slate-900 focus:border-[#D8232A]">
                 <option value="Steel">Steel</option>
                 <option value="Concrete">Concrete</option>
                 <option value="Cement">Cement</option>
@@ -212,8 +212,8 @@ export const ProductsPage: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">Unit</label>
-              <select className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-100">
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Unit</label>
+              <select className="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-xs font-semibold text-slate-900 focus:border-[#D8232A]">
                 <option value="MT">MT (Tons)</option>
                 <option value="Bags">Bags</option>
                 <option value="CuM">CuM</option>
@@ -221,8 +221,8 @@ export const ProductsPage: React.FC = () => {
               </select>
             </div>
             <div>
-              <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">GST Rate %</label>
-              <select className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-100">
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">GST Rate %</label>
+              <select className="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-xs font-semibold text-slate-900 focus:border-[#D8232A]">
                 <option value="18">18% GST</option>
                 <option value="28">28% GST</option>
                 <option value="5">5% GST</option>

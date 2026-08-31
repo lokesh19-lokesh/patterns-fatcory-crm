@@ -4,14 +4,14 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
-import { formatCurrency, formatDate } from '../../lib/utils';
-import { HardHat, Plus, MapPin, UserCheck, Calendar, DollarSign, Activity } from 'lucide-react';
+import { formatCurrency } from '../../lib/utils';
+import { Plus, MapPin, UserCheck } from 'lucide-react';
 import { Project } from '../../types';
 
 export const ProjectsPage: React.FC = () => {
   const [isAddProjectOpen, setIsAddProjectOpen] = useState(false);
 
-  const [projects, setProjects] = useState<Project[]>([
+  const [projects] = useState<Project[]>([
     {
       id: 'proj_1',
       company_id: 'comp_77283',
@@ -51,8 +51,8 @@ export const ProjectsPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">Construction Project & BOQ Management</h1>
-          <p className="text-xs text-slate-400">Job-site material allocation, Bill of Quantities (BOQ), site engineer logs & progress</p>
+          <h1 className="text-2xl font-black text-slate-950 font-heading">Construction Project & BOQ Management</h1>
+          <p className="text-xs text-slate-500 font-medium">Job-site material allocation, Bill of Quantities (BOQ), site engineer logs & progress</p>
         </div>
         <Button variant="primary" size="sm" icon={<Plus className="w-4 h-4" />} onClick={() => setIsAddProjectOpen(true)}>
           Add Construction Site
@@ -62,42 +62,42 @@ export const ProjectsPage: React.FC = () => {
       {/* Projects Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {projects.map((p) => (
-          <Card key={p.id} className="hover:border-slate-700 transition-all">
+          <Card key={p.id} className="hover:border-slate-300 hover:shadow-md transition-all">
             <CardHeader>
               <div>
-                <span className="text-[10px] font-mono text-sky-400 font-bold">{p.code}</span>
-                <CardTitle className="text-base">{p.name}</CardTitle>
-                <div className="flex items-center gap-1 text-xs text-amber-400 mt-1">
+                <span className="text-[10px] font-mono text-[#D8232A] font-bold">{p.code}</span>
+                <CardTitle className="text-base mt-0.5">{p.name}</CardTitle>
+                <div className="flex items-center gap-1 text-xs text-amber-600 font-semibold mt-1">
                   <MapPin className="w-3.5 h-3.5" /> {p.location}
                 </div>
               </div>
               <Badge variant={p.status === 'In Progress' ? 'info' : 'success'}>{p.status}</Badge>
             </CardHeader>
             <CardContent className="space-y-4 text-xs">
-              <div className="space-y-1">
+              <div className="space-y-1.5">
                 <div className="flex justify-between font-semibold">
-                  <span className="text-slate-400">Site Work Completion</span>
-                  <span className="text-emerald-400 font-bold">{p.progress_pct}%</span>
+                  <span className="text-slate-500">Site Work Completion</span>
+                  <span className="text-emerald-700 font-bold">{p.progress_pct}%</span>
                 </div>
-                <div className="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
                   <div className="bg-emerald-500 h-full rounded-full" style={{ width: `${p.progress_pct}%` }} />
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 p-3 bg-slate-950 rounded-lg border border-slate-800">
+              <div className="grid grid-cols-2 gap-3 p-3.5 bg-slate-50 rounded-xl border border-slate-200">
                 <div>
-                  <span className="text-[10px] text-slate-400 uppercase">Sanctioned Budget</span>
-                  <p className="text-sm font-bold text-slate-100">{formatCurrency(p.budget)}</p>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase">Sanctioned Budget</span>
+                  <p className="text-sm font-black text-slate-900">{formatCurrency(p.budget)}</p>
                 </div>
                 <div>
-                  <span className="text-[10px] text-slate-400 uppercase">Material Spent Cost</span>
-                  <p className="text-sm font-bold text-sky-400">{formatCurrency(p.material_spent_cost)}</p>
+                  <span className="text-[10px] text-slate-500 font-bold uppercase">Material Spent Cost</span>
+                  <p className="text-sm font-black text-[#D8232A]">{formatCurrency(p.material_spent_cost)}</p>
                 </div>
               </div>
 
-              <div className="flex justify-between border-t border-slate-800 pt-3 text-slate-300">
-                <span className="text-slate-400 flex items-center gap-1"><UserCheck className="w-3.5 h-3.5 text-sky-400" /> Engineer:</span>
-                <span className="font-semibold text-slate-200">{p.engineer_in_charge}</span>
+              <div className="flex justify-between border-t border-slate-100 pt-3 text-slate-700">
+                <span className="text-slate-500 font-medium flex items-center gap-1"><UserCheck className="w-3.5 h-3.5 text-[#D8232A]" /> Engineer:</span>
+                <span className="font-bold text-slate-900">{p.engineer_in_charge}</span>
               </div>
             </CardContent>
           </Card>

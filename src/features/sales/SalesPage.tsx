@@ -5,13 +5,13 @@ import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
 import { formatCurrency, formatDate } from '../../lib/utils';
-import { FileText, Plus, Search, CheckCircle2, Clock, MapPin, Building, Printer } from 'lucide-react';
+import { Plus, MapPin } from 'lucide-react';
 import { SalesOrder } from '../../types';
 
 export const SalesPage: React.FC = () => {
   const [isCreateSoOpen, setIsCreateSoOpen] = useState(false);
 
-  const [orders, setOrders] = useState<SalesOrder[]>([
+  const [orders] = useState<SalesOrder[]>([
     {
       id: 'so_1',
       company_id: 'comp_77283',
@@ -55,8 +55,8 @@ export const SalesPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">Construction Sales & Site Orders</h1>
-          <p className="text-xs text-slate-400">Commercial estimates, sales orders, site dispatch schedules and payment terms</p>
+          <h1 className="text-2xl font-black text-slate-950 font-heading">Construction Sales & Site Orders</h1>
+          <p className="text-xs text-slate-500 font-medium">Commercial estimates, sales orders, site dispatch schedules and payment terms</p>
         </div>
         <Button variant="primary" size="sm" icon={<Plus className="w-4 h-4" />} onClick={() => setIsCreateSoOpen(true)}>
           New Sales Order
@@ -69,37 +69,37 @@ export const SalesPage: React.FC = () => {
           <CardTitle>Confirmed Site Sales Orders</CardTitle>
         </CardHeader>
         <CardContent className="p-0 overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase font-semibold">
+          <table className="w-full text-left text-xs text-slate-700">
+            <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold text-[11px]">
               <tr>
-                <th className="p-3">Order Number</th>
-                <th className="p-3">Customer & Site Location</th>
-                <th className="p-3">Order Date</th>
-                <th className="p-3">Delivery Date</th>
-                <th className="p-3 text-right">GST Tax</th>
-                <th className="p-3 text-right">Grand Total</th>
-                <th className="p-3 text-center">Status</th>
-                <th className="p-3 text-center">Payment</th>
+                <th className="p-3.5">Order Number</th>
+                <th className="p-3.5">Customer & Site Location</th>
+                <th className="p-3.5">Order Date</th>
+                <th className="p-3.5">Delivery Date</th>
+                <th className="p-3.5 text-right">GST Tax</th>
+                <th className="p-3.5 text-right">Grand Total</th>
+                <th className="p-3.5 text-center">Status</th>
+                <th className="p-3.5 text-center">Payment</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-slate-100">
               {orders.map((so) => (
-                <tr key={so.id} className="hover:bg-slate-800/40 transition-colors">
-                  <td className="p-3 font-mono font-bold text-sky-400">{so.order_number}</td>
-                  <td className="p-3 font-semibold text-slate-100">
+                <tr key={so.id} className="hover:bg-slate-50/80 transition-colors">
+                  <td className="p-3.5 font-mono font-bold text-[#D8232A]">{so.order_number}</td>
+                  <td className="p-3.5 font-bold text-slate-900">
                     <div>{so.customer_name}</div>
-                    <div className="text-[10px] text-amber-400 flex items-center gap-1 font-normal">
+                    <div className="text-[11px] text-amber-600 flex items-center gap-1 font-semibold mt-0.5">
                       <MapPin className="w-3 h-3" /> {so.project_site_name}
                     </div>
                   </td>
-                  <td className="p-3">{formatDate(so.order_date)}</td>
-                  <td className="p-3 font-medium text-slate-200">{formatDate(so.delivery_date)}</td>
-                  <td className="p-3 text-right text-slate-400">{formatCurrency(so.gst_amount)}</td>
-                  <td className="p-3 text-right font-extrabold text-emerald-400">{formatCurrency(so.grand_total)}</td>
-                  <td className="p-3 text-center">
+                  <td className="p-3.5 text-slate-500 font-medium">{formatDate(so.order_date)}</td>
+                  <td className="p-3.5 font-semibold text-slate-800">{formatDate(so.delivery_date)}</td>
+                  <td className="p-3.5 text-right text-slate-500 font-medium">{formatCurrency(so.gst_amount)}</td>
+                  <td className="p-3.5 text-right font-black text-slate-950">{formatCurrency(so.grand_total)}</td>
+                  <td className="p-3.5 text-center">
                     <Badge variant={so.status === 'Dispatched' ? 'success' : 'info'}>{so.status}</Badge>
                   </td>
-                  <td className="p-3 text-center">
+                  <td className="p-3.5 text-center">
                     <Badge variant={so.payment_status === 'Paid' ? 'success' : 'warning'}>{so.payment_status}</Badge>
                   </td>
                 </tr>
@@ -113,8 +113,8 @@ export const SalesPage: React.FC = () => {
       <Modal isOpen={isCreateSoOpen} onClose={() => setIsCreateSoOpen(false)} title="Generate New Commercial Sales Order">
         <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); setIsCreateSoOpen(false); }}>
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">Select Construction Client</label>
-            <select className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-100">
+            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Select Construction Client</label>
+            <select className="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-xs font-semibold text-slate-900 focus:border-[#D8232A] focus:ring-1 focus:ring-[#D8232A]">
               <option value="cust_101">Larsen & Toubro Ltd (L&T Construction)</option>
               <option value="cust_102">Shapoorji Pallonji Real Estate</option>
               <option value="cust_103">Oberoi Realty Site-4</option>
@@ -125,9 +125,9 @@ export const SalesPage: React.FC = () => {
             <Input label="Order Date" type="date" defaultValue="2024-07-30" required />
             <Input label="Target Delivery Date" type="date" defaultValue="2024-08-02" required />
           </div>
-          <div className="p-3 bg-slate-950 rounded-lg border border-slate-800 space-y-2">
-            <h4 className="text-xs font-bold text-slate-200">Material Items</h4>
-            <div className="grid grid-cols-3 gap-2">
+          <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+            <h4 className="text-xs font-bold text-slate-900 uppercase">Material Items</h4>
+            <div className="grid grid-cols-3 gap-3">
               <Input label="Quantity" type="number" placeholder="45" required />
               <Input label="Unit Selling Price (₹)" type="number" placeholder="63000" required />
               <Input label="GST %" type="number" placeholder="18" required />

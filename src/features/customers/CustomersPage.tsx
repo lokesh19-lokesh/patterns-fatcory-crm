@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
-import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
+import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
 import { formatCurrency } from '../../lib/utils';
-import { Users, Plus, Search, Filter, Phone, Mail, Building, AlertTriangle, ShieldCheck, FileSpreadsheet } from 'lucide-react';
+import { Plus, Search, Phone, FileSpreadsheet } from 'lucide-react';
 import { Customer } from '../../types';
 
 export const CustomersPage: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
 
-  const [customers, setCustomers] = useState<Customer[]>([
+  const [customers] = useState<Customer[]>([
     {
       id: 'cust_101',
       company_id: 'comp_77283',
@@ -107,8 +107,8 @@ export const CustomersPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">Customer Management & Credit Control</h1>
-          <p className="text-xs text-slate-400">Master repository for construction clients, GSTIN validation, and credit limit tracking</p>
+          <h1 className="text-2xl font-black text-slate-950 font-heading">Customer Management & Credit Control</h1>
+          <p className="text-xs text-slate-500 font-medium">Master repository for construction clients, GSTIN validation, and credit limit tracking</p>
         </div>
         <div className="flex items-center gap-2">
           <Button variant="outline" size="sm" icon={<FileSpreadsheet className="w-4 h-4" />}>
@@ -121,69 +121,69 @@ export const CustomersPage: React.FC = () => {
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
         <div className="w-full sm:w-80">
           <Input
             icon={<Search className="w-4 h-4" />}
-            placeholder="Search by Client Name, GSTIN, Contact Person..."
+            placeholder="Search by Client Name, GSTIN..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs font-semibold text-slate-400">Total Clients: {filteredCustomers.length}</span>
+          <span className="text-xs font-bold text-slate-600">Total Clients: {filteredCustomers.length}</span>
         </div>
       </div>
 
       {/* Customers Data Table */}
       <Card>
         <CardContent className="p-0 overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase font-semibold">
+          <table className="w-full text-left text-xs text-slate-700">
+            <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold text-[11px]">
               <tr>
-                <th className="p-3">Customer Company</th>
-                <th className="p-3">Category</th>
-                <th className="p-3">GSTIN / PAN</th>
-                <th className="p-3">Contact Person</th>
-                <th className="p-3 text-right">Outstanding</th>
-                <th className="p-3 text-right">Credit Limit</th>
-                <th className="p-3 text-center">Credit Exposure</th>
-                <th className="p-3 text-center">Status</th>
+                <th className="p-3.5">Customer Company</th>
+                <th className="p-3.5">Category</th>
+                <th className="p-3.5">GSTIN / PAN</th>
+                <th className="p-3.5">Contact Person</th>
+                <th className="p-3.5 text-right">Outstanding</th>
+                <th className="p-3.5 text-right">Credit Limit</th>
+                <th className="p-3.5 text-center">Credit Exposure</th>
+                <th className="p-3.5 text-center">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-slate-100">
               {filteredCustomers.map((c) => {
                 const creditUtilization = Math.round((c.current_outstanding / c.credit_limit) * 100);
                 const isNearLimit = creditUtilization >= 85;
 
                 return (
-                  <tr key={c.id} className="hover:bg-slate-800/40 transition-colors">
-                    <td className="p-3 font-semibold text-slate-100">
+                  <tr key={c.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="p-3.5 font-bold text-slate-900">
                       <div>{c.name}</div>
-                      <div className="text-[10px] text-slate-400 font-normal">{c.city}, {c.state}</div>
+                      <div className="text-[10px] text-slate-500 font-normal">{c.city}, {c.state}</div>
                     </td>
-                    <td className="p-3">
+                    <td className="p-3.5">
                       <Badge variant="info">{c.category}</Badge>
                     </td>
-                    <td className="p-3 font-mono">
-                      <div>{c.gstin}</div>
+                    <td className="p-3.5 font-mono">
+                      <div className="font-semibold text-slate-800">{c.gstin}</div>
                       <div className="text-[10px] text-slate-500">{c.pan}</div>
                     </td>
-                    <td className="p-3">
-                      <div className="font-medium text-slate-200">{c.contact_person}</div>
-                      <div className="text-[10px] text-slate-400 flex items-center gap-1">
-                        <Phone className="w-3 h-3" /> {c.phone}
+                    <td className="p-3.5">
+                      <div className="font-bold text-slate-900">{c.contact_person}</div>
+                      <div className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
+                        <Phone className="w-3 h-3 text-[#D8232A]" /> {c.phone}
                       </div>
                     </td>
-                    <td className="p-3 text-right font-bold text-amber-400">{formatCurrency(c.current_outstanding)}</td>
-                    <td className="p-3 text-right font-semibold text-slate-200">{formatCurrency(c.credit_limit)}</td>
-                    <td className="p-3">
+                    <td className="p-3.5 text-right font-bold text-amber-600">{formatCurrency(c.current_outstanding)}</td>
+                    <td className="p-3.5 text-right font-semibold text-slate-700">{formatCurrency(c.credit_limit)}</td>
+                    <td className="p-3.5">
                       <div className="w-28 mx-auto space-y-1">
                         <div className="flex justify-between text-[10px] font-bold">
-                          <span className={isNearLimit ? 'text-rose-400' : 'text-emerald-400'}>{creditUtilization}%</span>
+                          <span className={isNearLimit ? 'text-rose-600' : 'text-emerald-700'}>{creditUtilization}%</span>
                           <span className="text-slate-500">{c.payment_terms_days} days</span>
                         </div>
-                        <div className="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                        <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
                           <div
                             className={`h-full rounded-full ${isNearLimit ? 'bg-rose-500' : 'bg-emerald-500'}`}
                             style={{ width: `${Math.min(creditUtilization, 100)}%` }}
@@ -191,7 +191,7 @@ export const CustomersPage: React.FC = () => {
                         </div>
                       </div>
                     </td>
-                    <td className="p-3 text-center">
+                    <td className="p-3.5 text-center">
                       <Badge variant={c.status === 'Active' ? 'success' : 'danger'}>{c.status}</Badge>
                     </td>
                   </tr>

@@ -5,13 +5,13 @@ import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
 import { formatCurrency, formatDate } from '../../lib/utils';
-import { ShoppingCart, Plus, Search, FileCheck, Truck, CheckCircle2, Clock } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { PurchaseOrder } from '../../types';
 
 export const PurchasePage: React.FC = () => {
   const [isCreatePoOpen, setIsCreatePoOpen] = useState(false);
 
-  const [orders, setOrders] = useState<PurchaseOrder[]>([
+  const [orders] = useState<PurchaseOrder[]>([
     {
       id: 'po_1',
       company_id: 'comp_77283',
@@ -51,8 +51,8 @@ export const PurchasePage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">Procurement & Purchase Management</h1>
-          <p className="text-xs text-slate-400">Supplier purchase orders, Goods Received Notes (GRN) inspection and vendor bills</p>
+          <h1 className="text-2xl font-black text-slate-950 font-heading">Procurement & Purchase Management</h1>
+          <p className="text-xs text-slate-500 font-medium">Supplier purchase orders, Goods Received Notes (GRN) inspection and vendor bills</p>
         </div>
         <Button variant="primary" size="sm" icon={<Plus className="w-4 h-4" />} onClick={() => setIsCreatePoOpen(true)}>
           Create Purchase Order
@@ -65,28 +65,28 @@ export const PurchasePage: React.FC = () => {
           <CardTitle>Active Purchase Orders (PO)</CardTitle>
         </CardHeader>
         <CardContent className="p-0 overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase font-semibold">
+          <table className="w-full text-left text-xs text-slate-700">
+            <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold text-[11px]">
               <tr>
-                <th className="p-3">PO Number</th>
-                <th className="p-3">Supplier Name</th>
-                <th className="p-3">PO Date</th>
-                <th className="p-3">Expected Delivery</th>
-                <th className="p-3 text-right">Tax Amount</th>
-                <th className="p-3 text-right">Grand Total</th>
-                <th className="p-3 text-center">Status</th>
+                <th className="p-3.5">PO Number</th>
+                <th className="p-3.5">Supplier Name</th>
+                <th className="p-3.5">PO Date</th>
+                <th className="p-3.5">Expected Delivery</th>
+                <th className="p-3.5 text-right">Tax Amount</th>
+                <th className="p-3.5 text-right">Grand Total</th>
+                <th className="p-3.5 text-center">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-slate-100">
               {orders.map((po) => (
-                <tr key={po.id} className="hover:bg-slate-800/40 transition-colors">
-                  <td className="p-3 font-mono font-bold text-sky-400">{po.po_number}</td>
-                  <td className="p-3 font-semibold text-slate-100">{po.supplier_name}</td>
-                  <td className="p-3">{formatDate(po.po_date)}</td>
-                  <td className="p-3 text-amber-400 font-medium">{formatDate(po.expected_delivery_date)}</td>
-                  <td className="p-3 text-right font-medium text-slate-300">{formatCurrency(po.tax_amount)}</td>
-                  <td className="p-3 text-right font-extrabold text-emerald-400">{formatCurrency(po.grand_total)}</td>
-                  <td className="p-3 text-center">
+                <tr key={po.id} className="hover:bg-slate-50/80 transition-colors">
+                  <td className="p-3.5 font-mono font-bold text-[#D8232A]">{po.po_number}</td>
+                  <td className="p-3.5 font-bold text-slate-900">{po.supplier_name}</td>
+                  <td className="p-3.5 text-slate-500 font-medium">{formatDate(po.po_date)}</td>
+                  <td className="p-3.5 text-amber-600 font-bold">{formatDate(po.expected_delivery_date)}</td>
+                  <td className="p-3.5 text-right font-medium text-slate-600">{formatCurrency(po.tax_amount)}</td>
+                  <td className="p-3.5 text-right font-black text-slate-950">{formatCurrency(po.grand_total)}</td>
+                  <td className="p-3.5 text-center">
                     <Badge variant={po.status === 'Approved' ? 'success' : 'warning'}>{po.status}</Badge>
                   </td>
                 </tr>
@@ -100,8 +100,8 @@ export const PurchasePage: React.FC = () => {
       <Modal isOpen={isCreatePoOpen} onClose={() => setIsCreatePoOpen(false)} title="Issue New Purchase Order (PO)">
         <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); setIsCreatePoOpen(false); }}>
           <div>
-            <label className="block text-xs font-semibold text-slate-300 uppercase mb-1">Select Supplier</label>
-            <select className="w-full bg-slate-950 border border-slate-800 rounded p-2 text-xs text-slate-100">
+            <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Select Supplier</label>
+            <select className="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-xs font-semibold text-slate-900 focus:border-[#D8232A]">
               <option value="sup_201">Tata Steel Long Products Ltd</option>
               <option value="sup_202">UltraTech Cement Division</option>
               <option value="sup_203">Sahyadri Aggregate Crushers</option>
@@ -111,9 +111,9 @@ export const PurchasePage: React.FC = () => {
             <Input label="PO Date" type="date" defaultValue="2024-07-30" required />
             <Input label="Expected Site Delivery Date" type="date" defaultValue="2024-08-05" required />
           </div>
-          <div className="p-3 bg-slate-950 rounded-lg border border-slate-800 space-y-2">
-            <h4 className="text-xs font-bold text-slate-200">Line Items</h4>
-            <div className="grid grid-cols-3 gap-2">
+          <div className="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+            <h4 className="text-xs font-bold text-slate-900 uppercase">Line Items</h4>
+            <div className="grid grid-cols-3 gap-3">
               <Input label="Material Qty" type="number" placeholder="50" required />
               <Input label="Unit Price (₹)" type="number" placeholder="54000" required />
               <Input label="GST %" type="number" placeholder="18" required />

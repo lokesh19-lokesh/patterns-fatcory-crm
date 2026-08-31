@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import { StatCard } from '../../components/ui/StatCard';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { formatCurrency, formatDate } from '../../lib/utils';
-import { Calculator, TrendingUp, TrendingDown, DollarSign, FileSpreadsheet, Scale, Receipt } from 'lucide-react';
+import { TrendingUp, TrendingDown, FileSpreadsheet, Scale, Receipt } from 'lucide-react';
 
 export const AccountingPage: React.FC = () => {
   const ledgerEntries = [
@@ -19,8 +19,8 @@ export const AccountingPage: React.FC = () => {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">Financial Accounting & GST Ledger</h1>
-          <p className="text-xs text-slate-400">Double-entry ledger, Cashbook, Profit & Loss statement and GSTR-1 tax compliance</p>
+          <h1 className="text-2xl font-black text-slate-950 font-heading">Financial Accounting & GST Ledger</h1>
+          <p className="text-xs text-slate-500 font-medium">Double-entry ledger, Cashbook, Profit & Loss statement and GSTR-1 tax compliance</p>
         </div>
         <Button variant="outline" size="sm" icon={<FileSpreadsheet className="w-4 h-4" />}>
           Export Tally / Excel
@@ -41,30 +41,30 @@ export const AccountingPage: React.FC = () => {
           <CardTitle>General Accounts Ledger & Journal Log</CardTitle>
         </CardHeader>
         <CardContent className="p-0 overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-300">
-            <thead className="bg-slate-950 text-slate-400 border-b border-slate-800 uppercase font-semibold">
+          <table className="w-full text-left text-xs text-slate-700">
+            <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold text-[11px]">
               <tr>
-                <th className="p-3">Posting Date</th>
-                <th className="p-3">Account Head</th>
-                <th className="p-3">Reference Voucher</th>
-                <th className="p-3 text-center">Type</th>
-                <th className="p-3 text-right">Amount</th>
-                <th className="p-3 text-right">Running Balance</th>
+                <th className="p-3.5">Posting Date</th>
+                <th className="p-3.5">Account Head</th>
+                <th className="p-3.5">Reference Voucher</th>
+                <th className="p-3.5 text-center">Type</th>
+                <th className="p-3.5 text-right">Amount</th>
+                <th className="p-3.5 text-right">Running Balance</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-800/60">
+            <tbody className="divide-y divide-slate-100">
               {ledgerEntries.map((l) => (
-                <tr key={l.id} className="hover:bg-slate-800/40 transition-colors">
-                  <td className="p-3 font-mono text-slate-400">{formatDate(l.date)}</td>
-                  <td className="p-3 font-semibold text-slate-100">{l.account}</td>
-                  <td className="p-3 font-mono text-sky-400">{l.ref}</td>
-                  <td className="p-3 text-center">
+                <tr key={l.id} className="hover:bg-slate-50/80 transition-colors">
+                  <td className="p-3.5 font-mono text-slate-500 font-medium">{formatDate(l.date)}</td>
+                  <td className="p-3.5 font-bold text-slate-900">{l.account}</td>
+                  <td className="p-3.5 font-mono font-bold text-[#D8232A]">{l.ref}</td>
+                  <td className="p-3.5 text-center">
                     <Badge variant={l.type === 'Credit' ? 'success' : 'danger'}>{l.type}</Badge>
                   </td>
-                  <td className={`p-3 text-right font-bold ${l.type === 'Credit' ? 'text-emerald-400' : 'text-rose-400'}`}>
+                  <td className={`p-3.5 text-right font-black ${l.type === 'Credit' ? 'text-emerald-700' : 'text-rose-600'}`}>
                     {l.type === 'Credit' ? '+' : '-'}{formatCurrency(l.amount)}
                   </td>
-                  <td className="p-3 text-right font-bold text-slate-200">{formatCurrency(l.balance)}</td>
+                  <td className="p-3.5 text-right font-bold text-slate-900">{formatCurrency(l.balance)}</td>
                 </tr>
               ))}
             </tbody>

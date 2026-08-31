@@ -11,8 +11,8 @@ export const Card: React.FC<CardProps> = ({ children, className, glass = false, 
       className={cn(
         'rounded-xl border transition-all duration-200',
         glass
-          ? 'bg-slate-900/60 backdrop-blur-md border-slate-800/80 shadow-xl'
-          : 'bg-slate-900/90 dark:bg-slate-900/90 border-slate-800/90 shadow-lg shadow-black/20',
+          ? 'bg-white/80 backdrop-blur-md border-slate-200 shadow-sm'
+          : 'bg-white border-slate-200 shadow-xs hover:shadow-sm',
         className
       )}
       {...props}
@@ -23,13 +23,13 @@ export const Card: React.FC<CardProps> = ({ children, className, glass = false, 
 };
 
 export const CardHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({ children, className, ...props }) => (
-  <div className={cn('p-5 border-b border-slate-800/80 flex items-center justify-between gap-4', className)} {...props}>
+  <div className={cn('p-5 border-b border-slate-100 flex items-center justify-between gap-4', className)} {...props}>
     {children}
   </div>
 );
 
 export const CardTitle: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({ children, className, ...props }) => (
-  <h3 className={cn('text-base font-semibold text-slate-100 tracking-tight flex items-center gap-2', className)} {...props}>
+  <h3 className={cn('text-base font-bold text-slate-900 tracking-tight flex items-center gap-2 font-heading', className)} {...props}>
     {children}
   </h3>
 );
