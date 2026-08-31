@@ -13,9 +13,29 @@ async function seedData() {
     console.log('Connecting to Supabase PostgreSQL database for seeding...');
     await client.connect();
 
+    // 0. Insert Master Platform Company for Super Admin
+    await client.query(`
+      INSERT INTO companies (name, gstin, pan, email, phone, website, subscription_plan, subscription_status, admin_name, admin_email, max_workers, max_branches)
+      VALUES (
+        'Patterns ERP Cloud Platform Master',
+        '27PLATFORM00001',
+        'PLATFORM00',
+        'brickserpsoftware@gmail.com',
+        '+91 90000 00001',
+        'https://patternscloud.com',
+        'Enterprise',
+        'Active',
+        'Platform Super Admin',
+        'brickserpsoftware@gmail.com',
+        9999,
+        999
+      )
+      ON CONFLICT (gstin) DO UPDATE SET admin_email = EXCLUDED.admin_email;
+    `);
+
     // 1. Insert Company
     const compRes = await client.query(`
-      INSERT INTO companies (name, gstin, pan, email, phone, website, logo_url, address, bank_details)
+      INSERT INTO companies (name, gstin, pan, email, phone, website, logo_url, address, bank_details, subscription_plan, subscription_status, admin_name, admin_email)
       VALUES (
         'Apex Construction Materials & Aggregates Pvt Ltd',
         '27AAACA12341Z5',
@@ -25,7 +45,11 @@ async function seedData() {
         'https://apexmaterials.com',
         '/assets/logo.png',
         '{"street":"Plot 45-B, MIDC Industrial Zone", "city":"Mumbai", "state":"Maharashtra", "pincode":"400072", "country":"India"}'::jsonb,
-        '{"bank_name":"HDFC Bank Ltd", "account_number":"50200049182310", "ifsc":"HDFC0000123", "branch":"Andheri East, Mumbai"}'::jsonb
+        '{"bank_name":"HDFC Bank Ltd", "account_number":"50200049182310", "ifsc":"HDFC0000123", "branch":"Andheri East, Mumbai"}'::jsonb,
+        'Enterprise',
+        'Active',
+        'Vikramaditya Sharma',
+        'admin@apexmaterials.com'
       )
       ON CONFLICT (gstin) DO UPDATE SET name = EXCLUDED.name
       RETURNING id;

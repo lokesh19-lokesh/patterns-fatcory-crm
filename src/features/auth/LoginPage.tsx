@@ -18,7 +18,7 @@ export const LoginPage: React.FC = () => {
   const handleRoleSelection = (role: UserRole) => {
     setSelectedRole(role);
     if (role === 'Super Admin') {
-      setEmail('superadmin@patterns.com');
+      setEmail('brickserpsoftware@gmail.com');
       setCompanyGstin('PLATFORM-MASTER');
     } else if (role === 'Admin' || role === 'Company Admin') {
       setEmail('admin@apexmaterials.com');
@@ -144,24 +144,45 @@ export const LoginPage: React.FC = () => {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              label="Company GSTIN / Tenant Code"
-              icon={<Building className="w-4 h-4" />}
-              value={companyGstin}
-              onChange={(e) => setCompanyGstin(e.target.value)}
-              placeholder="e.g. 27AAACA12341Z5"
-              required
-            />
+            {selectedRole === 'Super Admin' ? (
+              <div className="p-3 bg-slate-900 text-white rounded-xl border border-slate-800 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-[10px] uppercase font-mono font-bold text-amber-400 flex items-center gap-1">
+                    <Crown className="w-3.5 h-3.5" /> Sole Super Admin Account
+                  </span>
+                  <span className="text-[9px] px-1.5 py-0.5 bg-slate-800 text-slate-300 font-mono rounded">
+                    Fixed Master
+                  </span>
+                </div>
+                <p className="text-xs font-bold text-white font-mono">
+                  brickserpsoftware@gmail.com
+                </p>
+                <p className="text-[10px] text-slate-400 leading-tight">
+                  There is only one master Super Admin owner account for the entire platform.
+                </p>
+              </div>
+            ) : (
+              <>
+                <Input
+                  label="Company GSTIN / Tenant Code"
+                  icon={<Building className="w-4 h-4" />}
+                  value={companyGstin}
+                  onChange={(e) => setCompanyGstin(e.target.value)}
+                  placeholder="e.g. 27AAACA12341Z5"
+                  required
+                />
 
-            <Input
-              label="Official Work Email"
-              type="email"
-              icon={<Mail className="w-4 h-4" />}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@construction.com"
-              required
-            />
+                <Input
+                  label="Official Work Email"
+                  type="email"
+                  icon={<Mail className="w-4 h-4" />}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@construction.com"
+                  required
+                />
+              </>
+            )}
 
             {mode === 'password' ? (
               <Input

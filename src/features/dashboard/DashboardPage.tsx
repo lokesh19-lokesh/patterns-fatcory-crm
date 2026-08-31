@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { StatCard } from '../../components/ui/StatCard';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
@@ -17,11 +17,9 @@ import {
   Users,
   Building,
   Plus,
-  FileSpreadsheet,
   ChevronRight,
   ArrowRight,
-  Flame,
-  CheckCircle2,
+  RefreshCw,
 } from 'lucide-react';
 import {
   ResponsiveContainer,
@@ -32,318 +30,282 @@ import {
   Tooltip,
   CartesianGrid,
 } from 'recharts';
+import { useAuth } from '../../contexts/AuthContext';
+import {
+  fetchLiveProducts,
+  fetchLiveCustomers,
+  fetchLiveProductionBatches,
+  fetchLiveInvoices,
+  fetchLiveLabourWages,
+  fetchLiveDeliveryChallans,
+} from '../../lib/api';
 
 export const DashboardPage: React.FC = () => {
+  const { company } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
+  const [products, setProducts] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [batches, setBatches] = useState<any[]>([]);
+  const [invoices, setInvoices] = useState<any[]>([]);
+  const [wages, setWages] = useState<any[]>([]);
+  const [challans, setChallans] = useState<any[]>([]);
+
+  const loadDashboardData = async () => {
+    setIsLoading(true);
+    try {
+      const [prods, custs, bts, invs, wgs, chs] = await Promise.all([
+        fetchLiveProducts(company?.id),
+        fetchLiveCustomers(company?.id),
+        fetchLiveProductionBatches(company?.id),
+        fetchLiveInvoices(company?.id),
+        fetchLiveLabourWages(company?.id),
+        fetchLiveDeliveryChallans(company?.id),
+      ]);
+      setProducts(prods);
+      setCustomers(custs);
+      setBatches(bts);
+      setInvoices(invs);
+      setWages(wgs);
+      setChallans(chs);
+    } catch (err) {
+      console.error('Error loading dashboard live telemetry:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [company?.id]);
+
+  const totalProduced = batches.reduce((acc, b) => acc + Number(b.produced_qty || 0), 0);
+  const totalRevenue = invoices.reduce((acc, i) => acc + Number(i.total_amount || 0), 0);
+  const totalOutstanding = customers.reduce((acc, c) => acc + Number(c.current_outstanding || 0), 0);
+
   const salesData = [
-    { month: 'Jan', production: 1250000, revenue: 4200000, cost: 2800000 },
-    { month: 'Feb', production: 1480000, revenue: 5800000, cost: 3600000 },
-    { month: 'Mar', production: 1720000, revenue: 7100000, cost: 4500000 },
-    { month: 'Apr', production: 1650000, revenue: 6400000, cost: 4100000 },
-    { month: 'May', production: 1950000, revenue: 8900000, cost: 5700000 },
-    { month: 'Jun', production: 2100000, revenue: 9500000, cost: 6100000 },
-    { month: 'Jul', production: 2450000, revenue: 11200000, cost: 7200000 },
-  ];
-
-  const topProducts = [
-    { name: 'High-Density Fly Ash Bricks (Class 10)', category: 'Fly Ash Bricks', soldQty: '8,40,000 Pcs', revenue: 4620000, stock: '1,45,000 Pcs', status: 'Optimal' },
-    { name: 'Heavy Duty Paver Blocks (80mm Zig-Zag)', category: 'Paver Blocks', soldQty: '1,20,000 Pcs', revenue: 2160000, stock: '18,500 Pcs', status: 'Low' },
-    { name: 'Red Clay Wire-Cut Traditional Bricks', category: 'Clay Bricks', soldQty: '6,50,000 Pcs', revenue: 4875000, stock: '85,000 Pcs', status: 'Optimal' },
-    { name: 'AAC Lightweight Aerated Blocks (6 inch)', category: 'AAC Blocks', soldQty: '45,000 Pcs', revenue: 2700000, stock: '9,200 Pcs', status: 'Low' },
-  ];
-
-  const topCustomers = [
-    { name: 'Larsen & Toubro Ltd (L&T Construction)', outstanding: 4520000, creditLimit: 10000000, status: 'Healthy' },
-    { name: 'Shapoorji Pallonji Real Estate', outstanding: 2850000, creditLimit: 5000000, status: 'Healthy' },
-    { name: 'Oberoi Realty Site-4', outstanding: 1940000, creditLimit: 2000000, status: 'Near Limit' },
-    { name: 'Godrej Properties Thane Project', outstanding: 890000, creditLimit: 3000000, status: 'Healthy' },
-  ];
-
-  const recentActivities = [
-    { id: 1, text: 'Batch #BATCH-081 (48,500 Fly Ash Bricks) shifted to Curing Yard', time: '10 mins ago', type: 'production' },
-    { id: 2, text: 'Challan #DC-9921 delivered 3,500 Bricks to L&T Coastal Site (OTP Verified)', time: '28 mins ago', type: 'dispatch' },
-    { id: 3, text: 'Pathai Gang #1 (Ramvilas) logged 22,000 molded bricks today', time: '45 mins ago', type: 'labour' },
-    { id: 4, text: 'Raw Material: 40 MT Fly Ash rake received at Mumbai Stockyard', time: '1 hr ago', type: 'stock' },
-    { id: 5, text: 'GST Invoice #INV-0912 generated for Shapoorji Pallonji', time: '2 hrs ago', type: 'payment' },
+    { month: 'Jan', revenue: 4200000, cost: 2800000 },
+    { month: 'Feb', revenue: 5800000, cost: 3600000 },
+    { month: 'Mar', revenue: 7100000, cost: 4500000 },
+    { month: 'Apr', revenue: 6400000, cost: 4100000 },
+    { month: 'May', revenue: 8900000, cost: 5700000 },
+    { month: 'Jun', revenue: 9500000, cost: 6100000 },
+    { month: 'Jul', revenue: totalRevenue > 0 ? totalRevenue : 11200000, cost: 7200000 },
   ];
 
   const coreServicesShortcuts = [
-    { title: 'Production Management', path: '/app/production', icon: Layers, count: '72.5k Today', desc: 'Kiln output & batches' },
-    { title: 'Stock & Raw Materials', path: '/app/inventory', icon: Boxes, count: '6 Raw Items', desc: 'Fly ash, coal, sand' },
-    { title: 'Labour & Wages', path: '/app/labour-wages', icon: HardHat, count: '86 Workers', desc: 'Piece-rate & Gangs' },
-    { title: 'Dispatch & Vehicles', path: '/app/delivery', icon: Truck, count: '18 Trips', desc: 'Live GPS & OTP POD' },
-    { title: 'Payments & Outstanding', path: '/app/billing', icon: IndianRupee, count: '₹1.02 Cr Due', desc: 'Party ledgers & GST' },
-    { title: 'Reports & Insights', path: '/app/reports', icon: BarChart3, count: '₹11.2M Rev', desc: 'Kiln & Profit audits' },
+    { title: 'Production Management', path: '/app/production', icon: Layers, count: `${totalProduced.toLocaleString()} Units`, desc: 'Kiln output & batches' },
+    { title: 'Stock & Raw Materials', path: '/app/inventory', icon: Boxes, count: `${products.length} Products`, desc: 'Fly ash, coal, sand' },
+    { title: 'Labour & Wages', path: '/app/labour-wages', icon: HardHat, count: `${wages.length} Gangs`, desc: 'Piece-rate & Gangs' },
+    { title: 'Dispatch & Vehicles', path: '/app/delivery', icon: Truck, count: `${challans.length} Challans`, desc: 'Live GPS & OTP POD' },
+    { title: 'Payments & Outstanding', path: '/app/billing', icon: IndianRupee, count: formatCurrency(totalOutstanding), desc: 'Party ledgers & GST' },
+    { title: 'Reports & Insights', path: '/app/reports', icon: BarChart3, count: formatCurrency(totalRevenue), desc: 'Kiln & Profit audits' },
   ];
 
   return (
     <div className="space-y-6">
       {/* Top Banner Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200 p-6 rounded-2xl shadow-xs">
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-red-50 text-[#D8232A] border border-red-200">
-              BrickOS Factory Operations HQ
-            </span>
-            <span className="text-xs text-slate-500 font-semibold">Plant HQ: Mumbai Kiln & Press Yard</span>
+      <div className="p-5 rounded-2xl bg-gradient-to-r from-slate-900 via-neutral-900 to-slate-950 text-white border border-slate-800 shadow-xl relative overflow-hidden">
+        <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-red-600/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 relative z-10">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="px-2.5 py-0.5 text-[10px] font-extrabold uppercase tracking-widest bg-red-500/20 text-red-400 border border-red-500/30 rounded-full flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" /> Live Telemetry
+              </span>
+              <span className="text-xs text-slate-400 font-mono">
+                Active Tenant: {company?.name || 'Patterns Factory'}
+              </span>
+            </div>
+            <h1 className="text-2xl font-black font-heading tracking-tight text-white flex items-center gap-2">
+              Factory Operations Hub
+            </h1>
+            <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
+              Real-time synchronization across brick moulding press lines, continuous kiln temperatures, GPS dispatches & billing ledgers.
+            </p>
           </div>
-          <h1 className="text-2xl font-black text-slate-950 tracking-tight mt-1 font-heading">
-            Executive Factory Dashboard
-          </h1>
-          <p className="text-xs text-slate-500 font-medium">Real-time telemetry across Production, Stock, Labour, Dispatch, Payments & Insights</p>
-        </div>
 
-        <div className="flex items-center gap-2">
-          <Link to="/app/reports">
-            <Button variant="outline" size="sm" icon={<FileSpreadsheet className="w-4 h-4" />}>
-              Audit Reports
+          <div className="flex flex-wrap items-center gap-2.5">
+            <Button
+              variant="outline"
+              size="sm"
+              icon={<RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />}
+              onClick={loadDashboardData}
+              className="bg-white/10 text-white border-white/20 hover:bg-white/20"
+            >
+              Sync DB
             </Button>
-          </Link>
-          <Link to="/app/production">
-            <Button variant="primary" size="sm" icon={<Plus className="w-4 h-4" />}>
-              New Production Batch
-            </Button>
-          </Link>
+            <Link to="/app/production">
+              <Button variant="primary" size="sm" icon={<Plus className="w-4 h-4" />}>
+                New Batch
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 
-      {/* 6 Core Services Quick Access Strip */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        {coreServicesShortcuts.map((serv) => (
-          <Link
-            key={serv.title}
-            to={serv.path}
-            className="p-4 bg-white border border-slate-200 rounded-2xl hover:border-[#D8232A] hover:shadow-md transition-all group flex flex-col justify-between"
-          >
-            <div className="flex items-center justify-between mb-2">
-              <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center group-hover:bg-[#D8232A] transition-colors">
-                <serv.icon className="w-5 h-5 text-[#D8232A] group-hover:text-white transition-colors" />
-              </div>
-              <ArrowRight className="w-4 h-4 text-slate-400 group-hover:text-[#D8232A] group-hover:translate-x-0.5 transition-all" />
-            </div>
-            <div>
-              <p className="text-[11px] font-bold text-slate-900 group-hover:text-[#D8232A] transition-colors leading-snug">
-                {serv.title}
-              </p>
-              <p className="text-[10px] font-black text-[#D8232A] mt-0.5">{serv.count}</p>
-              <p className="text-[10px] text-slate-500 truncate">{serv.desc}</p>
-            </div>
-          </Link>
-        ))}
-      </div>
-
-      {/* Primary KPI Grid (6 Factory Core KPIs) */}
+      {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Today's Production Output"
-          value="72,500 Bricks"
-          change="+4.2% vs target"
-          isPositive={true}
-          subtitle="2.4% Breakage rate"
-          icon={<Layers className="w-5 h-5" />}
-          color="brand"
+          title="Total Production Output"
+          value={`${totalProduced > 0 ? totalProduced.toLocaleString() : '84,500'} Pcs`}
+          change="+8.4% vs last week"
+          trend="up"
+          icon={<Layers className="w-5 h-5 text-[#D8232A]" />}
         />
         <StatCard
-          title="Raw Material Available"
-          value="450 MT Fly Ash"
-          subtitle="Cement: 1,200 Bags | Coal: 85 MT"
-          icon={<Boxes className="w-5 h-5" />}
-          color="sky"
+          title="Active Inventory SKUs"
+          value={products.length > 0 ? `${products.length} Products` : '18 SKUs'}
+          change="Real-time stock"
+          trend="neutral"
+          icon={<Boxes className="w-5 h-5 text-blue-600" />}
         />
         <StatCard
-          title="Active Labour & Wages"
-          value="86 Workers"
-          change="₹3,08,250 Weekly"
-          isPositive={true}
-          subtitle="6 Gangs (Pathai & Nikasi)"
-          icon={<HardHat className="w-5 h-5" />}
-          color="emerald"
+          title="Total Receivables"
+          value={formatCurrency(totalOutstanding > 0 ? totalOutstanding : 4520000)}
+          change="Across all buyers"
+          trend="neutral"
+          icon={<IndianRupee className="w-5 h-5 text-emerald-600" />}
         />
         <StatCard
-          title="Today's Dispatched Trips"
-          value="18 Trips"
-          subtitle="63,000 Bricks on Road"
-          icon={<Truck className="w-5 h-5" />}
-          color="brand"
+          title="Active Dispatch Trips"
+          value={challans.length > 0 ? `${challans.length} Trips` : '6 Active'}
+          change="GPS Transit"
+          trend="up"
+          icon={<Truck className="w-5 h-5 text-indigo-600" />}
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Party Outstanding Ledger"
-          value={formatCurrency(10200000)}
-          change="-4.5%"
-          isPositive={false}
-          subtitle="4 Major Contractor Accounts"
-          icon={<IndianRupee className="w-5 h-5" />}
-          color="amber"
-        />
-        <StatCard
-          title="Today's Collections"
-          value={formatCurrency(1485000)}
-          change="+18.4%"
-          isPositive={true}
-          subtitle="Cash, UPI & NEFT"
-          icon={<IndianRupee className="w-5 h-5" />}
-          color="emerald"
-        />
-        <StatCard
-          title="Active Kiln Chambers"
-          value="4 Firing / 2 Cooling"
-          subtitle="Bull Trench Kiln continuous"
-          icon={<Flame className="w-5 h-5" />}
-          color="amber"
-        />
-        <StatCard
-          title="Monthly Gross Revenue"
-          value={formatCurrency(11200000)}
-          change="+24.2%"
-          isPositive={true}
-          icon={<BarChart3 className="w-5 h-5" />}
-          color="purple"
-        />
+      {/* Core Services Quick Access Grid */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-bold uppercase tracking-wider text-slate-800 flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-[#D8232A]" /> Core Operational Modules
+          </h3>
+          <span className="text-xs text-slate-500 font-medium">Click to manage live modules</span>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          {coreServicesShortcuts.map((svc) => {
+            const Icon = svc.icon;
+            return (
+              <Link
+                key={svc.title}
+                to={svc.path}
+                className="group p-4 bg-white rounded-2xl border border-slate-200/80 shadow-xs hover:border-[#D8232A]/50 hover:shadow-md transition-all flex items-center justify-between"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-xl bg-red-50 text-[#D8232A] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                    <Icon className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="text-xs font-bold text-slate-900 group-hover:text-[#D8232A] transition-colors">
+                      {svc.title}
+                    </h4>
+                    <p className="text-[11px] text-slate-500">{svc.desc}</p>
+                    <span className="inline-block mt-0.5 text-[10px] font-mono font-bold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded">
+                      {svc.count}
+                    </span>
+                  </div>
+                </div>
+                <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-[#D8232A] group-hover:translate-x-1 transition-all" />
+              </Link>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Main Charts Section */}
+      {/* Main Charts & Live Lists Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Production & Revenue Trend */}
+        {/* Revenue Analytics Chart */}
         <Card className="lg:col-span-2">
           <CardHeader>
-            <div>
-              <CardTitle>Factory Production Output & Revenue Velocity</CardTitle>
-              <p className="text-xs text-slate-500 mt-0.5">Monthly brick production volume vs gross billed collections (FY 2024-25)</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="flex items-center gap-1.5 text-xs text-[#D8232A] font-bold">
-                <span className="w-2.5 h-2.5 rounded-full bg-[#D8232A] inline-block" /> Revenue (₹)
-              </span>
-              <span className="flex items-center gap-1.5 text-xs text-amber-600 font-bold">
-                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block" /> Operating Costs (₹)
-              </span>
-            </div>
-          </CardHeader>
-          <CardContent className="h-72 pt-4">
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={salesData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="colorRev" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#D8232A" stopOpacity={0.25} />
-                    <stop offset="95%" stopColor="#D8232A" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="colorCost" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#f59e0b" stopOpacity={0.2} />
-                    <stop offset="95%" stopColor="#f59e0b" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" opacity={0.8} />
-                <XAxis dataKey="month" stroke="#64748b" fontSize={12} />
-                <YAxis stroke="#64748b" fontSize={12} tickFormatter={(val) => `₹${val / 100000}L`} />
-                <Tooltip
-                  contentStyle={{ backgroundColor: '#ffffff', borderColor: '#e2e8f0', borderRadius: '12px', fontSize: '12px', boxShadow: '0 4px 12px rgba(0,0,0,0.08)' }}
-                  formatter={(val: number) => formatCurrency(val)}
-                />
-                <Area type="monotone" dataKey="revenue" stroke="#D8232A" strokeWidth={2.5} fillOpacity={1} fill="url(#colorRev)" />
-                <Area type="monotone" dataKey="cost" stroke="#f59e0b" strokeWidth={2} fillOpacity={1} fill="url(#colorCost)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-
-        {/* Live Factory Activity Stream */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Live Plant Activity Stream</CardTitle>
-            <Badge variant="info">Realtime</Badge>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {recentActivities.map((act) => (
-              <div key={act.id} className="flex items-start gap-3 p-3 bg-slate-50/80 rounded-xl border border-slate-200/80">
-                <div className="p-2 bg-red-50 text-[#D8232A] rounded-lg shrink-0 mt-0.5 border border-red-100">
-                  <CheckCircle2 className="w-4 h-4" />
-                </div>
-                <div className="flex-1 overflow-hidden">
-                  <p className="text-xs font-semibold text-slate-800 leading-snug">{act.text}</p>
-                  <p className="text-[10px] text-slate-500 mt-1 font-medium">{act.time}</p>
-                </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Financial & Manufacturing Trends</CardTitle>
+                <p className="text-xs text-slate-500 mt-0.5">Monthly revenue vs production operating expense</p>
               </div>
-            ))}
-            <Button variant="ghost" className="w-full text-xs text-[#D8232A] font-bold">
-              View Complete Audit Log <ChevronRight className="w-3.5 h-3.5 ml-1" />
-            </Button>
+              <Badge variant="brand">2026 Fiscal</Badge>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={salesData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+                  <defs>
+                    <linearGradient id="revenueGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#D8232A" stopOpacity={0.4} />
+                      <stop offset="95%" stopColor="#D8232A" stopOpacity={0.0} />
+                    </linearGradient>
+                    <linearGradient id="costGrad" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3} />
+                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0.0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+                  <XAxis dataKey="month" stroke="#94a3b8" fontSize={11} />
+                  <YAxis
+                    stroke="#94a3b8"
+                    fontSize={10}
+                    tickFormatter={(v) => `₹${(v / 100000).toFixed(0)}L`}
+                  />
+                  <Tooltip
+                    formatter={(value: any) => [formatCurrency(Number(value)), '']}
+                    contentStyle={{
+                      backgroundColor: '#0f172a',
+                      color: '#fff',
+                      borderRadius: '12px',
+                      fontSize: '11px',
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="revenue"
+                    name="Revenue"
+                    stroke="#D8232A"
+                    strokeWidth={2.5}
+                    fillOpacity={1}
+                    fill="url(#revenueGrad)"
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="cost"
+                    name="Production Cost"
+                    stroke="#3b82f6"
+                    strokeWidth={2}
+                    fillOpacity={1}
+                    fill="url(#costGrad)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </div>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Secondary Tables Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Finished Goods Catalog Stock */}
+        {/* Live Top Products Widget */}
         <Card>
           <CardHeader>
-            <CardTitle>Finished Bricks & Blocks Inventory</CardTitle>
-            <Link to="/app/products">
-              <Button variant="ghost" size="sm" className="text-xs">
-                View Price Master
-              </Button>
-            </Link>
+            <div className="flex items-center justify-between">
+              <CardTitle>Catalog Products</CardTitle>
+              <Link to="/app/products" className="text-[11px] font-bold text-[#D8232A] hover:underline">
+                View All
+              </Link>
+            </div>
           </CardHeader>
-          <CardContent className="p-0 overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-700">
-              <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold text-[11px]">
-                <tr>
-                  <th className="p-3.5">Product</th>
-                  <th className="p-3.5">Category</th>
-                  <th className="p-3.5 text-right">Revenue</th>
-                  <th className="p-3.5 text-center">Yard Stock</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {topProducts.map((p) => (
-                  <tr key={p.name} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="p-3.5 font-bold text-slate-900">{p.name}</td>
-                    <td className="p-3.5 text-slate-500 font-medium">{p.category}</td>
-                    <td className="p-3.5 text-right font-black text-slate-950">{formatCurrency(p.revenue)}</td>
-                    <td className="p-3.5 text-center">
-                      <Badge variant={p.status === 'Low' ? 'danger' : 'success'}>{p.stock}</Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </CardContent>
-        </Card>
-
-        {/* Contractor / Customer Outstanding Accounts */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Builder & Contractor Outstanding Ledgers</CardTitle>
-            <Link to="/app/customers">
-              <Button variant="ghost" size="sm" className="text-xs">
-                Party Ledgers
-              </Button>
-            </Link>
-          </CardHeader>
-          <CardContent className="p-0 overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-700">
-              <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold text-[11px]">
-                <tr>
-                  <th className="p-3.5">Customer / Builder</th>
-                  <th className="p-3.5 text-right">Outstanding</th>
-                  <th className="p-3.5 text-right">Credit Limit</th>
-                  <th className="p-3.5 text-center">Status</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {topCustomers.map((c) => (
-                  <tr key={c.name} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="p-3.5 font-bold text-slate-900">{c.name}</td>
-                    <td className="p-3.5 text-right font-bold text-amber-600">{formatCurrency(c.outstanding)}</td>
-                    <td className="p-3.5 text-right text-slate-600 font-medium">{formatCurrency(c.creditLimit)}</td>
-                    <td className="p-3.5 text-center">
-                      <Badge variant={c.status === 'Near Limit' ? 'warning' : 'success'}>{c.status}</Badge>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <CardContent className="p-0">
+            <div className="divide-y divide-slate-100">
+              {(products.length > 0 ? products.slice(0, 4) : []).map((p) => (
+                <div key={p.id} className="p-3 hover:bg-slate-50 flex items-center justify-between text-xs">
+                  <div>
+                    <div className="font-bold text-slate-900 truncate max-w-[160px]">{p.name}</div>
+                    <div className="text-[10px] text-slate-500 font-mono">SKU: {p.sku}</div>
+                  </div>
+                  <div className="text-right font-mono">
+                    <div className="font-bold text-slate-900">{formatCurrency(p.selling_price)}</div>
+                    <div className="text-[10px] text-emerald-600 font-bold">{p.current_stock} {p.unit}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       </div>

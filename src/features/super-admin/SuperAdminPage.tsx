@@ -161,7 +161,9 @@ export const SuperAdminPage: React.FC = () => {
               <span className="px-2.5 py-0.5 text-[10px] font-black uppercase tracking-widest bg-red-500/20 text-red-400 border border-red-500/30 rounded-full flex items-center gap-1.5">
                 <Sparkles className="w-3 h-3 text-red-400" /> Platform Owner Mode
               </span>
-              <span className="text-xs text-slate-400 font-mono">Tenant & Subscription Master Control</span>
+              <span className="text-xs text-amber-300 font-mono bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
+                Master Account: brickserpsoftware@gmail.com
+              </span>
             </div>
             <h1 className="text-2xl font-black font-heading tracking-tight text-white flex items-center gap-2">
               Super Admin SaaS Command Center

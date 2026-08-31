@@ -8,6 +8,7 @@ export interface StatCardProps {
   value: string | number;
   change?: string;
   isPositive?: boolean;
+  trend?: 'up' | 'down' | 'neutral';
   icon: React.ReactNode;
   subtitle?: string;
   color?: 'sky' | 'emerald' | 'amber' | 'purple' | 'rose' | 'brand';
@@ -18,10 +19,12 @@ export const StatCard: React.FC<StatCardProps> = ({
   value,
   change,
   isPositive = true,
+  trend,
   icon,
   subtitle,
   color = 'brand',
 }) => {
+  const isUp = trend ? trend === 'up' : isPositive;
   const iconBg = {
     brand: 'bg-red-50 text-[#D8232A] border-red-100',
     sky: 'bg-sky-50 text-sky-600 border-sky-100',
@@ -39,7 +42,7 @@ export const StatCard: React.FC<StatCardProps> = ({
           <p className="text-2xl font-black text-slate-900 font-heading">{value}</p>
           {change && (
             <div className="flex items-center gap-1.5 text-xs pt-1">
-              {isPositive ? (
+              {isUp ? (
                 <span className="flex items-center text-emerald-600 font-bold gap-0.5">
                   <TrendingUp className="w-3.5 h-3.5" />
                   {change}

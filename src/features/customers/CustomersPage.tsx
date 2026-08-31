@@ -1,236 +1,331 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
 import { formatCurrency } from '../../lib/utils';
-import { Plus, Search, Phone, FileSpreadsheet } from 'lucide-react';
+import { Plus, Search, Phone, Trash2, Users, RefreshCw, Mail } from 'lucide-react';
 import { Customer } from '../../types';
+import { useAuth } from '../../contexts/AuthContext';
+import { fetchLiveCustomers, createLiveCustomer, deleteLiveCustomer } from '../../lib/api';
 
 export const CustomersPage: React.FC = () => {
+  const { company } = useAuth();
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddCustomerOpen, setIsAddCustomerOpen] = useState(false);
 
-  const [customers] = useState<Customer[]>([
-    {
-      id: 'cust_101',
-      company_id: 'comp_77283',
-      name: 'Larsen & Toubro Ltd (L&T Construction)',
-      contact_person: 'Er. Rajesh Varma',
-      email: 'r.varma@intecc.com',
-      phone: '+91 98200 55443',
-      gstin: '27AAACL1234F1Z1',
-      pan: 'AAACL1234F',
-      credit_limit: 10000000,
-      current_outstanding: 4520000,
-      payment_terms_days: 45,
-      category: 'Contractor',
-      address: 'L&T House, Ballard Estate',
-      city: 'Mumbai',
-      state: 'Maharashtra',
-      pincode: '400001',
-      status: 'Active',
-      created_at: '2024-01-20',
-    },
-    {
-      id: 'cust_102',
-      company_id: 'comp_77283',
-      name: 'Shapoorji Pallonji Real Estate',
-      contact_person: 'Anil Deshmukh',
-      email: 'anil.d@shapoorji.com',
-      phone: '+91 98333 11224',
-      gstin: '27AAACS9876K1Z9',
-      pan: 'AAACS9876K',
-      credit_limit: 5000000,
-      current_outstanding: 2850000,
-      payment_terms_days: 30,
-      category: 'Developer',
-      address: 'SP Centre, 41/44 Minoo Desai Marg',
-      city: 'Mumbai',
-      state: 'Maharashtra',
-      pincode: '400005',
-      status: 'Active',
-      created_at: '2024-02-05',
-    },
-    {
-      id: 'cust_103',
-      company_id: 'comp_77283',
-      name: 'Oberoi Realty Site-4 (Goregaon Project)',
-      contact_person: 'Sanjay Kulkarni',
-      email: 'sanjay.k@oberoirealty.com',
-      phone: '+91 98111 88990',
-      gstin: '27AAACO4321P1Z4',
-      pan: 'AAACO4321P',
-      credit_limit: 2000000,
-      current_outstanding: 1940000,
-      payment_terms_days: 15,
-      category: 'Developer',
-      address: 'Commerz II, International Business Park',
-      city: 'Mumbai',
-      state: 'Maharashtra',
-      pincode: '400063',
-      status: 'Active',
-      created_at: '2024-03-12',
-    },
-    {
-      id: 'cust_104',
-      company_id: 'comp_77283',
-      name: 'K Raheja Corp Engineering',
-      contact_person: 'Pankaj Mehta',
-      email: 'pankaj@kraheja.com',
-      phone: '+91 98700 33445',
-      gstin: '27AAACK6543M1Z2',
-      pan: 'AAACK6543M',
-      credit_limit: 3000000,
-      current_outstanding: 890000,
-      payment_terms_days: 30,
-      category: 'Contractor',
-      address: 'Raheja Tower, BKC',
-      city: 'Mumbai',
-      state: 'Maharashtra',
-      pincode: '400051',
-      status: 'Active',
-      created_at: '2024-04-01',
-    },
-  ]);
+  // Form states for new customer
+  const [name, setName] = useState('');
+  const [contactPerson, setContactPerson] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [gstin, setGstin] = useState('');
+  const [pan, setPan] = useState('');
+  const [creditLimit, setCreditLimit] = useState<number>(1000000);
+  const [paymentTerms, setPaymentTerms] = useState<number>(30);
+  const [category, setCategory] = useState<'Developer' | 'Contractor' | 'Retailer' | 'Individual'>('Contractor');
+  const [address, setAddress] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('Maharashtra');
+
+  const loadCustomers = async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchLiveCustomers(company?.id);
+      setCustomers(data);
+    } catch (err) {
+      console.error('Error fetching live customers:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadCustomers();
+  }, [company?.id]);
 
   const filteredCustomers = customers.filter(
     (c) =>
       c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.gstin.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      c.contact_person.toLowerCase().includes(searchTerm.toLowerCase())
+      (c.contact_person && c.contact_person.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (c.gstin && c.gstin.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  const handleAddCustomer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!company) return;
+
+    const newCust = await createLiveCustomer({
+      company_id: company.id,
+      name,
+      contact_person: contactPerson,
+      email,
+      phone,
+      gstin,
+      pan: pan || (gstin ? gstin.substring(2, 12) : 'ABCDE1234F'),
+      credit_limit: creditLimit,
+      current_outstanding: 0,
+      payment_terms_days: paymentTerms,
+      category,
+      address,
+      city: city || 'Mumbai',
+      state,
+      pincode: '400001',
+      status: 'Active',
+    });
+
+    if (newCust) {
+      setCustomers((prev) => [newCust, ...prev]);
+    } else {
+      loadCustomers();
+    }
+
+    setIsAddCustomerOpen(false);
+    setName('');
+    setContactPerson('');
+    setEmail('');
+    setPhone('');
+    setGstin('');
+    setAddress('');
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this customer?')) return;
+    setCustomers((prev) => prev.filter((c) => c.id !== id));
+    await deleteLiveCustomer(id);
+  };
 
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-950 font-heading">Customer Management & Credit Control</h1>
-          <p className="text-xs text-slate-500 font-medium">Master repository for construction clients, GSTIN validation, and credit limit tracking</p>
+          <h1 className="text-2xl font-black text-slate-950 font-heading">Customers & Accounts Directory</h1>
+          <p className="text-xs text-slate-500 font-medium">
+            Live database of developers, contractors, credit limits & payment terms
+          </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" icon={<FileSpreadsheet className="w-4 h-4" />}>
-            Export Customers
+          <Button
+            variant="outline"
+            size="sm"
+            icon={<RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />}
+            onClick={loadCustomers}
+          >
+            Refresh
           </Button>
-          <Button variant="primary" size="sm" icon={<Plus className="w-4 h-4" />} onClick={() => setIsAddCustomerOpen(true)}>
+          <Button
+            variant="primary"
+            size="sm"
+            icon={<Plus className="w-4 h-4" />}
+            onClick={() => setIsAddCustomerOpen(true)}
+          >
             Add New Customer
           </Button>
         </div>
       </div>
 
-      {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
-        <div className="w-full sm:w-80">
-          <Input
-            icon={<Search className="w-4 h-4" />}
-            placeholder="Search by Client Name, GSTIN..."
+      {/* Search Filter Bar */}
+      <div className="flex justify-between items-center bg-white p-3.5 rounded-2xl border border-slate-200 shadow-xs">
+        <div className="relative w-full sm:w-80">
+          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            placeholder="Search by company name, contact, GSTIN..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full bg-slate-50 border border-slate-200 text-xs rounded-xl pl-9 pr-4 py-2 focus:outline-none focus:border-[#D8232A] focus:bg-white"
           />
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs font-bold text-slate-600">Total Clients: {filteredCustomers.length}</span>
+        <div className="text-xs text-slate-500 font-semibold hidden sm:block">
+          Showing {filteredCustomers.length} active clients
         </div>
       </div>
 
-      {/* Customers Data Table */}
+      {/* Customers Table */}
       <Card>
         <CardContent className="p-0 overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-700">
             <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold text-[11px]">
               <tr>
-                <th className="p-3.5">Customer Company</th>
+                <th className="p-3.5">Customer Name & Contact</th>
+                <th className="p-3.5">Tax / GSTIN & City</th>
                 <th className="p-3.5">Category</th>
-                <th className="p-3.5">GSTIN / PAN</th>
-                <th className="p-3.5">Contact Person</th>
-                <th className="p-3.5 text-right">Outstanding</th>
                 <th className="p-3.5 text-right">Credit Limit</th>
-                <th className="p-3.5 text-center">Credit Exposure</th>
+                <th className="p-3.5 text-right">Current Outstanding</th>
                 <th className="p-3.5 text-center">Status</th>
+                <th className="p-3.5 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {filteredCustomers.map((c) => {
-                const creditUtilization = Math.round((c.current_outstanding / c.credit_limit) * 100);
-                const isNearLimit = creditUtilization >= 85;
-
-                return (
+              {filteredCustomers.length === 0 ? (
+                <tr>
+                  <td colSpan={7} className="p-12 text-center text-slate-400">
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      <Users className="w-8 h-8 text-slate-300" />
+                      <p className="text-sm font-bold text-slate-700">No customers found</p>
+                      <p className="text-xs text-slate-500">
+                        {searchTerm ? 'No clients match your search' : 'Register your first customer or developer account'}
+                      </p>
+                      {!searchTerm && (
+                        <Button
+                          variant="primary"
+                          size="sm"
+                          className="mt-2 text-xs"
+                          onClick={() => setIsAddCustomerOpen(true)}
+                        >
+                          Add First Customer
+                        </Button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ) : (
+                filteredCustomers.map((c) => (
                   <tr key={c.id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="p-3.5 font-bold text-slate-900">
-                      <div>{c.name}</div>
-                      <div className="text-[10px] text-slate-500 font-normal">{c.city}, {c.state}</div>
-                    </td>
-                    <td className="p-3.5">
-                      <Badge variant="info">{c.category}</Badge>
-                    </td>
-                    <td className="p-3.5 font-mono">
-                      <div className="font-semibold text-slate-800">{c.gstin}</div>
-                      <div className="text-[10px] text-slate-500">{c.pan}</div>
-                    </td>
-                    <td className="p-3.5">
-                      <div className="font-bold text-slate-900">{c.contact_person}</div>
-                      <div className="text-[10px] text-slate-500 flex items-center gap-1 mt-0.5">
-                        <Phone className="w-3 h-3 text-[#D8232A]" /> {c.phone}
-                      </div>
-                    </td>
-                    <td className="p-3.5 text-right font-bold text-amber-600">{formatCurrency(c.current_outstanding)}</td>
-                    <td className="p-3.5 text-right font-semibold text-slate-700">{formatCurrency(c.credit_limit)}</td>
-                    <td className="p-3.5">
-                      <div className="w-28 mx-auto space-y-1">
-                        <div className="flex justify-between text-[10px] font-bold">
-                          <span className={isNearLimit ? 'text-rose-600' : 'text-emerald-700'}>{creditUtilization}%</span>
-                          <span className="text-slate-500">{c.payment_terms_days} days</span>
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0">
+                          {c.name[0]}
                         </div>
-                        <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                          <div
-                            className={`h-full rounded-full ${isNearLimit ? 'bg-rose-500' : 'bg-emerald-500'}`}
-                            style={{ width: `${Math.min(creditUtilization, 100)}%` }}
-                          />
+                        <div>
+                          <div>{c.name}</div>
+                          <div className="text-[10px] text-slate-500 font-normal">
+                            {c.contact_person} • {c.phone}
+                          </div>
                         </div>
                       </div>
+                    </td>
+                    <td className="p-3.5">
+                      <div className="font-mono text-slate-800 font-semibold">{c.gstin || 'Unregistered'}</div>
+                      <div className="text-[10px] text-slate-500">{c.city}, {c.state}</div>
+                    </td>
+                    <td className="p-3.5 font-semibold text-slate-700">{c.category}</td>
+                    <td className="p-3.5 text-right font-mono font-medium text-slate-700">
+                      {formatCurrency(c.credit_limit)}
+                    </td>
+                    <td className="p-3.5 text-right font-mono font-bold text-[#D8232A]">
+                      {formatCurrency(c.current_outstanding)}
                     </td>
                     <td className="p-3.5 text-center">
-                      <Badge variant={c.status === 'Active' ? 'success' : 'danger'}>{c.status}</Badge>
+                      <Badge variant={c.status === 'Active' ? 'success' : 'danger'}>
+                        {c.status}
+                      </Badge>
+                    </td>
+                    <td className="p-3.5 text-right">
+                      <button
+                        onClick={() => handleDelete(c.id)}
+                        className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                        title="Delete Customer"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </td>
                   </tr>
-                );
-              })}
+                ))
+              )}
             </tbody>
           </table>
         </CardContent>
       </Card>
 
-      {/* Modal Add Customer */}
-      <Modal isOpen={isAddCustomerOpen} onClose={() => setIsAddCustomerOpen(false)} title="Register Construction Client">
-        <form
-          className="space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            setIsAddCustomerOpen(false);
-          }}
-        >
-          <Input label="Customer Company Name" placeholder="e.g. Shapoorji Pallonji Infra" required />
-          <div className="grid grid-cols-2 gap-4">
-            <Input label="GSTIN Number" placeholder="27AAACS9876K1Z9" required />
-            <Input label="PAN Number" placeholder="AAACS9876K" required />
+      {/* Add Customer Modal */}
+      <Modal isOpen={isAddCustomerOpen} onClose={() => setIsAddCustomerOpen(false)} title="Register Customer Account">
+        <form className="space-y-4" onSubmit={handleAddCustomer}>
+          <Input
+            label="Company / Client Name"
+            placeholder="e.g. Shapoorji Pallonji Real Estate"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
+
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              label="Contact Person Name"
+              placeholder="e.g. Er. Rajesh Varma"
+              value={contactPerson}
+              onChange={(e) => setContactPerson(e.target.value)}
+              required
+            />
+            <Input
+              label="Phone Number"
+              placeholder="+91 98200 55443"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value)}
+              required
+            />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Input label="Primary Contact Person" placeholder="Anil Deshmukh" required />
-            <Input label="Phone Number" placeholder="+91 98333 11224" required />
+
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              label="Email Address"
+              type="email"
+              placeholder="contact@client.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Category</label>
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value as any)}
+                className="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs font-semibold text-slate-900 focus:border-[#D8232A]"
+              >
+                <option value="Contractor">Contractor / Builder</option>
+                <option value="Developer">Real Estate Developer</option>
+                <option value="Retailer">Retail Dealer</option>
+                <option value="Individual">Individual Buyer</option>
+              </select>
+            </div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Input label="Approved Credit Limit (₹)" type="number" placeholder="5000000" required />
-            <Input label="Payment Credit Days" type="number" placeholder="30" required />
+
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              label="GSTIN Number"
+              placeholder="27AAACL1234F1Z1"
+              value={gstin}
+              onChange={(e) => setGstin(e.target.value)}
+            />
+            <Input
+              label="City"
+              placeholder="Mumbai"
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+            />
           </div>
-          <Input label="Site / Billing Address" placeholder="Full address" required />
-          <div className="flex justify-end gap-2 pt-2">
+
+          <Input
+            label="Billing & Site Address"
+            placeholder="Plot No 45, Site Office"
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+          />
+
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              label="Credit Limit (₹)"
+              type="number"
+              value={creditLimit}
+              onChange={(e) => setCreditLimit(Number(e.target.value))}
+            />
+            <Input
+              label="Payment Terms (Days)"
+              type="number"
+              value={paymentTerms}
+              onChange={(e) => setPaymentTerms(Number(e.target.value))}
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
             <Button variant="outline" type="button" onClick={() => setIsAddCustomerOpen(false)}>
               Cancel
             </Button>
             <Button variant="primary" type="submit">
-              Save Customer Master
+              Save Customer
             </Button>
           </div>
         </form>

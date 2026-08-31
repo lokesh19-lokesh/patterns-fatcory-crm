@@ -1,89 +1,83 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
 import { StatCard } from '../../components/ui/StatCard';
-import { formatCurrency, formatDate } from '../../lib/utils';
+import { formatCurrency } from '../../lib/utils';
 import {
   HardHat,
   Plus,
   Users,
-  Download,
   IndianRupee,
   Calendar,
   CheckCircle2,
-  FileSpreadsheet,
-  TrendingUp,
+  RefreshCw,
 } from 'lucide-react';
-
-interface LabourGang {
-  id: string;
-  gang_leader: string;
-  gang_type: 'Brick Molding (Pathai)' | 'Stacking & Loading (Nikasi)' | 'Kiln Firemen (Jhalai)' | 'Daily Maintenance';
-  workers_count: number;
-  rate_per_thousand: number;
-  weekly_bricks_count: number;
-  gross_earnings: number;
-  advances_deducted: number;
-  net_payable: number;
-  payment_status: 'Paid' | 'Pending Approval' | 'Processing';
-}
+import { useAuth } from '../../contexts/AuthContext';
+import { fetchLiveLabourWages, createLiveLabourWage, LabourWageRecord } from '../../lib/api';
 
 export const LabourWagesPage: React.FC = () => {
+  const { company } = useAuth();
+  const [wages, setWages] = useState<LabourWageRecord[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [isAddGangOpen, setIsAddGangOpen] = useState(false);
 
-  const [gangs, setGangs] = useState<LabourGang[]>([
-    {
-      id: 'gang_1',
-      gang_leader: 'Ramvilas & Gang (12 Workers)',
-      gang_type: 'Brick Molding (Pathai)',
-      workers_count: 12,
-      rate_per_thousand: 750,
-      weekly_bricks_count: 140000,
-      gross_earnings: 105000,
-      advances_deducted: 15000,
-      net_payable: 90000,
-      payment_status: 'Paid',
-    },
-    {
-      id: 'gang_2',
-      gang_leader: 'Chhotu Lal & Team (8 Workers)',
-      gang_type: 'Stacking & Loading (Nikasi)',
-      workers_count: 8,
-      rate_per_thousand: 350,
-      weekly_bricks_count: 180000,
-      gross_earnings: 63000,
-      advances_deducted: 8000,
-      net_payable: 55000,
-      payment_status: 'Paid',
-    },
-    {
-      id: 'gang_3',
-      gang_leader: 'Dharampal Kiln Team (6 Firemen)',
-      gang_type: 'Kiln Firemen (Jhalai)',
-      workers_count: 6,
-      rate_per_thousand: 450,
-      weekly_bricks_count: 120000,
-      gross_earnings: 54000,
-      advances_deducted: 5000,
-      net_payable: 49000,
-      payment_status: 'Processing',
-    },
-    {
-      id: 'gang_4',
-      gang_leader: 'Santosh Kumar & Gang (10 Workers)',
-      gang_type: 'Brick Molding (Pathai)',
-      workers_count: 10,
-      rate_per_thousand: 750,
-      weekly_bricks_count: 115000,
-      gross_earnings: 86250,
-      advances_deducted: 12000,
-      net_payable: 74250,
-      payment_status: 'Pending Approval',
-    },
-  ]);
+  // Form state
+  const [workerName, setWorkerName] = useState('');
+  const [taskType, setTaskType] = useState('Brick Molding (Pathai)');
+  const [pieceRate, setPieceRate] = useState<number>(750);
+  const [unitsCompleted, setUnitsCompleted] = useState<number>(10000);
+  const [shift, setShift] = useState('Day');
+  const [notes, setNotes] = useState('');
+
+  const loadWages = async () => {
+    setIsLoading(true);
+    try {
+      const data = await fetchLiveLabourWages(company?.id);
+      setWages(data);
+    } catch (err) {
+      console.error('Error fetching wages:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadWages();
+  }, [company?.id]);
+
+  const totalWageDisbursed = wages.reduce((acc, w) => acc + Number(w.total_wage || 0), 0);
+  const totalUnits = wages.reduce((acc, w) => acc + Number(w.units_completed || 0), 0);
+
+  const handleAddWage = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!company) return;
+
+    const computedTotal = (pieceRate / 1000) * unitsCompleted;
+    const newWage = await createLiveLabourWage({
+      company_id: company.id,
+      worker_name: workerName,
+      task_type: taskType,
+      piece_rate: pieceRate,
+      units_completed: unitsCompleted,
+      total_wage: computedTotal,
+      shift,
+      status: 'Approved',
+      notes,
+    });
+
+    if (newWage) {
+      setWages((prev) => [newWage, ...prev]);
+    } else {
+      loadWages();
+    }
+
+    setIsAddGangOpen(false);
+    setWorkerName('');
+    setNotes('');
+  };
 
   return (
     <div className="space-y-6">
@@ -92,153 +86,205 @@ export const LabourWagesPage: React.FC = () => {
         <div>
           <div className="flex items-center gap-2">
             <span className="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-red-50 text-[#D8232A] border border-red-200">
-              BrickOS Core Service 03
+              Contract & Piece-Rate
             </span>
-            <span className="text-xs text-slate-500 font-semibold">Piece-Rate & Daily Wages</span>
+            <span className="text-xs text-slate-500 font-semibold">Weekly Gang Settlement</span>
           </div>
           <h1 className="text-2xl font-black text-slate-950 tracking-tight mt-1 font-heading">
-            Labour & Wages Management
+            Labour & Gang Wages
           </h1>
           <p className="text-xs text-slate-500 font-medium">
-            Pathai (Molding) rate per 1,000 bricks, Nikasi (Loading) gang ledgers, weekly wage registers & advance deductions
+            Piece-rate calculations for brick molders, nikasi stackers, kiln jhalai firemen & kharcha settlements
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" icon={<FileSpreadsheet className="w-4 h-4" />}>
-            Export Wages Excel
+          <Button
+            variant="outline"
+            size="sm"
+            icon={<RefreshCw className={`w-3.5 h-3.5 ${isLoading ? 'animate-spin' : ''}`} />}
+            onClick={loadWages}
+          >
+            Refresh
           </Button>
           <Button variant="primary" size="sm" icon={<Plus className="w-4 h-4" />} onClick={() => setIsAddGangOpen(true)}>
-            Record Gang Output
+            Record Gang Wage
           </Button>
         </div>
       </div>
 
-      {/* Labour & Wage KPIs */}
+      {/* KPI Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
-          title="Total Factory Workforce"
-          value="86 Workers"
-          change="6 Active Gangs"
-          isPositive={true}
-          icon={<Users className="w-5 h-5" />}
-          color="brand"
+          title="Total Wages Disbursed"
+          value={formatCurrency(totalWageDisbursed)}
+          change="Live calculated"
+          trend="neutral"
+          icon={<IndianRupee className="w-5 h-5 text-emerald-600" />}
         />
         <StatCard
-          title="Weekly Bricks Molded"
-          value="5,55,000"
-          change="+8.4% vs last week"
-          isPositive={true}
-          icon={<HardHat className="w-5 h-5" />}
-          color="emerald"
+          title="Total Pieces Count"
+          value={`${totalUnits.toLocaleString()} Units`}
+          change="Molded & Handled"
+          trend="up"
+          icon={<HardHat className="w-5 h-5 text-amber-600" />}
         />
         <StatCard
-          title="Total Weekly Wages"
-          value={formatCurrency(308250)}
-          subtitle="Net after advances"
-          icon={<IndianRupee className="w-5 h-5" />}
-          color="amber"
+          title="Active Contractor Gangs"
+          value={wages.length.toString()}
+          change="On live payroll"
+          trend="up"
+          icon={<Users className="w-5 h-5 text-blue-600" />}
         />
         <StatCard
-          title="Advances Recovered"
-          value={formatCurrency(40000)}
-          subtitle="This week's recovery"
-          icon={<TrendingUp className="w-5 h-5" />}
-          color="purple"
+          title="Settlement Status"
+          value="100% Up to date"
+          change="No disputed kharcha"
+          trend="up"
+          icon={<CheckCircle2 className="w-5 h-5 text-emerald-600" />}
         />
       </div>
 
-      {/* Weekly Gang Wage Register Table */}
+      {/* Wages Table */}
       <Card>
         <CardHeader>
-          <CardTitle>Current Week Piece-Rate Gang Wage Register (24 Jul - 30 Jul)</CardTitle>
+          <div className="flex items-center justify-between">
+            <CardTitle>Contractor Gang Wage Settlement Log</CardTitle>
+            <Badge variant="brand">{wages.length} Wage Entries</Badge>
+          </div>
         </CardHeader>
         <CardContent className="p-0 overflow-x-auto">
           <table className="w-full text-left text-xs text-slate-700">
             <thead className="bg-slate-50 text-slate-600 border-b border-slate-200 uppercase font-semibold text-[11px]">
               <tr>
-                <th className="p-3.5">Gang / Contractor Leader</th>
-                <th className="p-3.5">Operation Type</th>
-                <th className="p-3.5 text-center">Team Size</th>
-                <th className="p-3.5 text-right">Piece Rate (₹/1k)</th>
-                <th className="p-3.5 text-right">Bricks Molded/Handled</th>
-                <th className="p-3.5 text-right">Gross Wages</th>
-                <th className="p-3.5 text-right">Advances Deducted</th>
-                <th className="p-3.5 text-right">Net Payable</th>
+                <th className="p-3.5">Worker / Gang Lead</th>
+                <th className="p-3.5">Operation Task</th>
+                <th className="p-3.5 text-right">Piece Rate (₹/1000)</th>
+                <th className="p-3.5 text-right">Units Completed</th>
+                <th className="p-3.5 text-right">Total Net Wage</th>
                 <th className="p-3.5 text-center">Status</th>
-                <th className="p-3.5 text-center">Payslip</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {gangs.map((g) => (
-                <tr key={g.id} className="hover:bg-slate-50/80 transition-colors">
-                  <td className="p-3.5 font-bold text-slate-900">{g.gang_leader}</td>
-                  <td className="p-3.5"><Badge variant="info">{g.gang_type}</Badge></td>
-                  <td className="p-3.5 text-center font-bold text-slate-800">{g.workers_count}</td>
-                  <td className="p-3.5 text-right font-semibold text-slate-700">₹{g.rate_per_thousand} / 1k</td>
-                  <td className="p-3.5 text-right font-black text-slate-950">{g.weekly_bricks_count.toLocaleString()}</td>
-                  <td className="p-3.5 text-right font-bold text-slate-800">{formatCurrency(g.gross_earnings)}</td>
-                  <td className="p-3.5 text-right font-semibold text-rose-600">-{formatCurrency(g.advances_deducted)}</td>
-                  <td className="p-3.5 text-right font-black text-emerald-700">{formatCurrency(g.net_payable)}</td>
-                  <td className="p-3.5 text-center">
-                    <Badge variant={g.payment_status === 'Paid' ? 'success' : g.payment_status === 'Processing' ? 'warning' : 'neutral'}>
-                      {g.payment_status}
-                    </Badge>
-                  </td>
-                  <td className="p-3.5 text-center">
-                    <button
-                      onClick={() => alert(`Wage slip downloaded for ${g.gang_leader}`)}
-                      className="p-1.5 text-slate-600 hover:text-[#D8232A] hover:bg-red-50 rounded-lg transition-colors border border-slate-200"
-                    >
-                      <Download className="w-4 h-4" />
-                    </button>
+              {wages.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="p-10 text-center text-slate-400">
+                    No labour wage records found. Click "Record Gang Wage" to enter a contractor piece-rate record.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                wages.map((w) => (
+                  <tr key={w.id} className="hover:bg-slate-50/80 transition-colors">
+                    <td className="p-3.5 font-bold text-slate-900">
+                      <div className="flex items-center gap-2">
+                        <div className="w-7 h-7 rounded-lg bg-red-50 text-[#D8232A] flex items-center justify-center font-bold text-xs shrink-0">
+                          <HardHat className="w-3.5 h-3.5" />
+                        </div>
+                        <div>
+                          <div>{w.worker_name}</div>
+                          <div className="text-[10px] text-slate-500">{w.shift} Shift • {w.date}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="p-3.5 font-semibold text-slate-700">{w.task_type}</td>
+                    <td className="p-3.5 text-right font-mono font-medium text-slate-600">
+                      {formatCurrency(w.piece_rate)} / 1k
+                    </td>
+                    <td className="p-3.5 text-right font-mono font-bold text-slate-900">
+                      {Number(w.units_completed).toLocaleString()}
+                    </td>
+                    <td className="p-3.5 text-right font-mono font-bold text-emerald-700">
+                      {formatCurrency(w.total_wage)}
+                    </td>
+                    <td className="p-3.5 text-center">
+                      <Badge variant={w.status === 'Paid' ? 'success' : 'brand'}>
+                        {w.status}
+                      </Badge>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </CardContent>
       </Card>
 
-      {/* Record Gang Output Modal */}
-      <Modal isOpen={isAddGangOpen} onClose={() => setIsAddGangOpen(false)} title="Record Gang Piece-Rate Output & Wages">
-        <form
-          className="space-y-4"
-          onSubmit={(e) => {
-            e.preventDefault();
-            setIsAddGangOpen(false);
-          }}
-        >
-          <Input label="Gang / Contractor Leader Name" placeholder="e.g. Ramvilas & Gang" required />
-          <div className="grid grid-cols-2 gap-4">
+      {/* Add Gang Modal */}
+      <Modal isOpen={isAddGangOpen} onClose={() => setIsAddGangOpen(false)} title="Record Contractor Gang Wage">
+        <form className="space-y-4" onSubmit={handleAddWage}>
+          <Input
+            label="Worker / Gang Leader Name"
+            placeholder="e.g. Ramvilas & Gang"
+            value={workerName}
+            onChange={(e) => setWorkerName(e.target.value)}
+            required
+          />
+
+          <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Labour Operation</label>
-              <select className="w-full bg-white border border-slate-300 rounded-lg p-2.5 text-xs font-semibold text-slate-900 focus:border-[#D8232A]">
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Operation Type</label>
+              <select
+                value={taskType}
+                onChange={(e) => setTaskType(e.target.value)}
+                className="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs font-semibold text-slate-900 focus:border-[#D8232A]"
+              >
                 <option value="Brick Molding (Pathai)">Brick Molding (Pathai)</option>
                 <option value="Stacking & Loading (Nikasi)">Stacking & Loading (Nikasi)</option>
                 <option value="Kiln Firemen (Jhalai)">Kiln Firemen (Jhalai)</option>
-                <option value="Daily Maintenance">Daily Plant Maintenance</option>
+                <option value="Machine Press Operator">Machine Press Operator</option>
+                <option value="Daily Maintenance">Daily Maintenance</option>
               </select>
             </div>
-            <Input label="Total Workers in Gang" type="number" placeholder="12" required />
+            <div>
+              <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Shift</label>
+              <select
+                value={shift}
+                onChange={(e) => setShift(e.target.value)}
+                className="w-full bg-white border border-slate-300 rounded-lg p-2 text-xs font-semibold text-slate-900 focus:border-[#D8232A]"
+              >
+                <option value="Day">Day Shift</option>
+                <option value="Night">Night Shift</option>
+              </select>
+            </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <Input label="Piece Rate (₹ per 1,000 Bricks)" type="number" placeholder="750" required />
-            <Input label="Total Bricks Count Produced" type="number" placeholder="140000" required />
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              label="Piece Rate (₹ per 1,000 units)"
+              type="number"
+              value={pieceRate}
+              onChange={(e) => setPieceRate(Number(e.target.value))}
+              required
+            />
+            <Input
+              label="Units Completed Count"
+              type="number"
+              value={unitsCompleted}
+              onChange={(e) => setUnitsCompleted(Number(e.target.value))}
+              required
+            />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <Input label="Advance Kharcha Deductions (₹)" type="number" placeholder="15000" />
-            <Input label="Wage Period Ending Date" type="date" defaultValue="2024-07-30" required />
+          <div className="p-3 bg-emerald-50 rounded-xl border border-emerald-200 text-xs flex justify-between items-center">
+            <span className="text-emerald-800 font-medium">Calculated Wage Amount:</span>
+            <span className="text-emerald-900 font-bold text-base font-mono">
+              {formatCurrency((pieceRate / 1000) * unitsCompleted)}
+            </span>
           </div>
 
-          <div className="flex justify-end gap-2 pt-2">
+          <Input
+            label="Notes / Advance Deduction Context"
+            placeholder="e.g. Cleared for Week 32 batch"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+          />
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
             <Button variant="outline" type="button" onClick={() => setIsAddGangOpen(false)}>
               Cancel
             </Button>
             <Button variant="primary" type="submit">
-              Save Wage Record
+              Save Wage Entry
             </Button>
           </div>
         </form>

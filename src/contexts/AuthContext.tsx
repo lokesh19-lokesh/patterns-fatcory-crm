@@ -1,6 +1,15 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { UserProfile, Company, UserRole, SubscriptionStatus, SubscriptionPlan } from '../types';
 import { hasRolePermission, PermissionAction, AVAILABLE_WORKER_PERMISSIONS } from '../lib/permissions';
+import {
+  fetchLiveCompanies,
+  fetchLiveWorkers,
+  createLiveCompany,
+  updateLiveCompanySubscription,
+  createLiveWorker,
+  updateLiveWorker,
+  deleteLiveWorker,
+} from '../lib/api';
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -259,16 +268,18 @@ export const INITIAL_WORKERS: UserProfile[] = [
   },
 ];
 
+export const SOLE_SUPER_ADMIN_EMAIL = 'brickserpsoftware@gmail.com';
+
 const DEFAULT_SUPER_ADMIN: UserProfile = {
   id: 'usr_super_001',
   company_id: 'platform_master',
-  email: 'superadmin@patterns.com',
+  email: 'brickserpsoftware@gmail.com',
   full_name: 'Patterns Cloud Platform Owner',
   phone: '+91 90000 00001',
   role: 'Super Admin',
   avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
   department: 'Platform Architecture & Licensing',
-  designation: 'Global SaaS Administrator',
+  designation: 'Sole Platform Owner & Super Admin',
   status: 'Active',
   created_at: '2023-01-01T00:00:00Z',
   permissions: ['all'],
@@ -365,6 +376,25 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('patterns_selected_comp_id', selectedCompanyId);
   }, [selectedCompanyId]);
 
+  useEffect(() => {
+    // Initial fetch from live Supabase
+    async function loadLiveSupabaseData() {
+      try {
+        const liveCompanies = await fetchLiveCompanies();
+        if (liveCompanies && liveCompanies.length > 0) {
+          setCompanies(liveCompanies);
+        }
+        const liveWorkers = await fetchLiveWorkers();
+        if (liveWorkers && liveWorkers.length > 0) {
+          setWorkers(liveWorkers);
+        }
+      } catch (e) {
+        console.warn('Initial Supabase live data load notice:', e);
+      }
+    }
+    loadLiveSupabaseData();
+  }, []);
+
   const currentCompany = companies.find((c) => c.id === selectedCompanyId) || companies[0] || null;
 
   const login = async (
@@ -373,17 +403,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     customPermissions?: PermissionAction[]
   ) => {
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
     let loggedUser: UserProfile;
     if (selectedRole === 'Super Admin') {
-      loggedUser = { ...DEFAULT_SUPER_ADMIN, email };
+      loggedUser = { ...DEFAULT_SUPER_ADMIN, email: SOLE_SUPER_ADMIN_EMAIL };
     } else if (selectedRole === 'Worker') {
+      const matched = workers.find((w) => w.email.toLowerCase() === email.toLowerCase());
       loggedUser = {
         ...DEFAULT_WORKER,
         email,
-        full_name: email.split('@')[0].toUpperCase().replace('.', ' '),
-        permissions: customPermissions || DEFAULT_WORKER.permissions,
+        full_name: matched ? matched.full_name : email.split('@')[0].toUpperCase().replace('.', ' '),
+        permissions: matched?.permissions || customPermissions || DEFAULT_WORKER.permissions,
+        worker_designation: matched?.worker_designation || DEFAULT_WORKER.worker_designation,
       };
     } else {
       loggedUser = {
@@ -430,7 +462,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const updateCompanySubscription = (
+  const updateCompanySubscription = async (
     companyId: string,
     status: SubscriptionStatus,
     plan?: SubscriptionPlan,
@@ -453,11 +485,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return c;
       })
     );
+
+    // Sync live to Supabase
+    await updateLiveCompanySubscription(companyId, status, plan, expiresAt, price, maxWorkers);
   };
 
-  const addCompany = (newComp: Partial<Company>) => {
+  const addCompany = async (newComp: Partial<Company>) => {
+    const tempId = `comp_${Date.now()}`;
     const createdComp: Company = {
-      id: `comp_${Date.now()}`,
+      id: tempId,
       name: newComp.name || 'New Factory Tenant',
       gstin: newComp.gstin || '27XXXXX0000X1Z1',
       pan: newComp.pan || 'XXXXX0000X',
@@ -490,13 +526,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       admin_email: newComp.admin_email || newComp.email || 'owner@newfactory.com',
       created_at: new Date().toISOString(),
     };
+
     setCompanies((prev) => [createdComp, ...prev]);
+
+    // Live insert into Supabase
+    try {
+      const liveRes = await createLiveCompany({
+        name: createdComp.name,
+        gstin: createdComp.gstin,
+        pan: createdComp.pan,
+        email: createdComp.email,
+        phone: createdComp.phone,
+        address: createdComp.address,
+        bank_details: createdComp.bank_details,
+        subscription_plan: createdComp.subscription_plan,
+        subscription_status: createdComp.subscription_status,
+        subscription_price: createdComp.subscription_price,
+        admin_name: createdComp.admin_name,
+        admin_email: createdComp.admin_email,
+        max_workers: createdComp.max_workers,
+        max_branches: createdComp.max_branches,
+      });
+      if (liveRes) {
+        setCompanies((prev) => prev.map((c) => (c.id === tempId ? liveRes : c)));
+      }
+    } catch (err) {
+      console.error('addCompany live sync notice:', err);
+    }
   };
 
-  const addWorker = (workerData: Omit<UserProfile, 'id' | 'created_at'>) => {
+  const addWorker = async (workerData: Omit<UserProfile, 'id' | 'created_at'>) => {
+    const tempId = `usr_w_${Date.now()}`;
     const newWorker: UserProfile = {
       ...workerData,
-      id: `usr_w_${Date.now()}`,
+      id: tempId,
       role: 'Worker',
       status: workerData.status || 'Active',
       assigned_by: user?.full_name || 'Admin',
@@ -505,20 +568,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ? workerData.permissions 
         : ['view_dashboard', 'view_attendance'],
     };
+
     setWorkers((prev) => [newWorker, ...prev]);
+
+    // Live sync to Supabase user_profiles
+    try {
+      await createLiveWorker({
+        company_id: currentCompany?.id || newWorker.company_id,
+        email: newWorker.email,
+        full_name: newWorker.full_name,
+        phone: newWorker.phone,
+        role: 'Worker',
+        worker_designation: newWorker.worker_designation,
+        assigned_by: newWorker.assigned_by,
+        department: newWorker.department,
+        designation: newWorker.designation,
+        status: newWorker.status,
+        permissions: newWorker.permissions,
+      });
+    } catch (err) {
+      console.error('addWorker live sync notice:', err);
+    }
   };
 
-  const updateWorker = (id: string, updates: Partial<UserProfile>) => {
+  const updateWorker = async (id: string, updates: Partial<UserProfile>) => {
     setWorkers((prev) =>
       prev.map((w) => (w.id === id ? { ...w, ...updates } : w))
     );
     if (user && user.id === id) {
       setUser((prev) => (prev ? { ...prev, ...updates } : null));
     }
+    await updateLiveWorker(id, updates);
   };
 
-  const deleteWorker = (id: string) => {
+  const deleteWorker = async (id: string) => {
     setWorkers((prev) => prev.filter((w) => w.id !== id));
+    await deleteLiveWorker(id);
   };
 
   const hasPermission = (permission: PermissionAction): boolean => {

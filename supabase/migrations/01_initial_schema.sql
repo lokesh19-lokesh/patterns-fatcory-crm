@@ -30,6 +30,17 @@ CREATE TABLE IF NOT EXISTS companies (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- Add columns if table already existed previously
+ALTER TABLE companies ADD COLUMN IF NOT EXISTS subscription_plan VARCHAR(50) DEFAULT 'Enterprise';
+ALTER TABLE companies ADD COLUMN IF NOT EXISTS subscription_status VARCHAR(50) DEFAULT 'Active';
+ALTER TABLE companies ADD COLUMN IF NOT EXISTS subscription_expires_at TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '1 year');
+ALTER TABLE companies ADD COLUMN IF NOT EXISTS subscription_price NUMERIC(15, 2) DEFAULT 49999.00;
+ALTER TABLE companies ADD COLUMN IF NOT EXISTS billing_cycle VARCHAR(20) DEFAULT 'Annual';
+ALTER TABLE companies ADD COLUMN IF NOT EXISTS max_workers INT DEFAULT 50;
+ALTER TABLE companies ADD COLUMN IF NOT EXISTS max_branches INT DEFAULT 10;
+ALTER TABLE companies ADD COLUMN IF NOT EXISTS admin_name VARCHAR(255);
+ALTER TABLE companies ADD COLUMN IF NOT EXISTS admin_email VARCHAR(255);
+
 CREATE TABLE IF NOT EXISTS company_branches (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
@@ -62,6 +73,9 @@ CREATE TABLE IF NOT EXISTS user_profiles (
     permissions JSONB DEFAULT '[]'::jsonb,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
+
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS worker_designation VARCHAR(150);
+ALTER TABLE user_profiles ADD COLUMN IF NOT EXISTS assigned_by VARCHAR(255);
 
 -- 3. CUSTOMER & SUPPLIER TABLES
 CREATE TABLE IF NOT EXISTS customers (
@@ -153,6 +167,106 @@ CREATE TABLE IF NOT EXISTS inventory_transactions (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+CREATE TABLE IF NOT EXISTS production_batches (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    batch_no VARCHAR(100) NOT NULL,
+    product_id UUID REFERENCES products(id),
+    product_name VARCHAR(255) NOT NULL,
+    planned_qty NUMERIC(15, 2) NOT NULL,
+    produced_qty NUMERIC(15, 2) DEFAULT 0.00,
+    rejected_qty NUMERIC(15, 2) DEFAULT 0.00,
+    unit VARCHAR(20) NOT NULL,
+    status VARCHAR(50) DEFAULT 'In Production' CHECK (status IN ('Scheduled', 'In Production', 'Quality Check', 'Completed', 'Cancelled')),
+    machinery_id VARCHAR(100),
+    operator_name VARCHAR(255),
+    start_time TIMESTAMPTZ DEFAULT NOW(),
+    end_time TIMESTAMPTZ,
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS labour_wages (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    worker_name VARCHAR(255) NOT NULL,
+    task_type VARCHAR(100) NOT NULL,
+    piece_rate NUMERIC(15, 2) NOT NULL,
+    units_completed NUMERIC(15, 2) NOT NULL,
+    total_wage NUMERIC(15, 2) NOT NULL,
+    date DATE DEFAULT CURRENT_DATE,
+    shift VARCHAR(20) DEFAULT 'Day',
+    status VARCHAR(20) DEFAULT 'Pending' CHECK (status IN ('Pending', 'Approved', 'Paid')),
+    notes TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS delivery_challans (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    challan_no VARCHAR(100) NOT NULL,
+    customer_id UUID REFERENCES customers(id),
+    customer_name VARCHAR(255) NOT NULL,
+    vehicle_no VARCHAR(50) NOT NULL,
+    driver_name VARCHAR(255) NOT NULL,
+    driver_phone VARCHAR(20),
+    destination TEXT NOT NULL,
+    items JSONB DEFAULT '[]'::jsonb,
+    total_qty NUMERIC(15, 2) NOT NULL,
+    status VARCHAR(50) DEFAULT 'Dispatched' CHECK (status IN ('Preparing', 'Dispatched', 'In Transit', 'Delivered', 'Cancelled')),
+    gate_pass_no VARCHAR(100),
+    dispatch_time TIMESTAMPTZ DEFAULT NOW(),
+    delivered_time TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS invoices (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    invoice_no VARCHAR(100) NOT NULL,
+    customer_id UUID REFERENCES customers(id),
+    customer_name VARCHAR(255) NOT NULL,
+    customer_gstin VARCHAR(15),
+    items JSONB DEFAULT '[]'::jsonb,
+    subtotal NUMERIC(15, 2) NOT NULL,
+    tax_amount NUMERIC(15, 2) NOT NULL,
+    total_amount NUMERIC(15, 2) NOT NULL,
+    paid_amount NUMERIC(15, 2) DEFAULT 0.00,
+    payment_status VARCHAR(20) DEFAULT 'Pending' CHECK (payment_status IN ('Pending', 'Partially Paid', 'Paid', 'Overdue')),
+    due_date DATE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS employees (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    branch_id UUID REFERENCES company_branches(id),
+    full_name VARCHAR(255) NOT NULL,
+    email VARCHAR(255),
+    phone VARCHAR(20) NOT NULL,
+    designation VARCHAR(100) NOT NULL,
+    department VARCHAR(100) NOT NULL,
+    salary NUMERIC(15, 2) DEFAULT 0.00,
+    status VARCHAR(20) DEFAULT 'Active' CHECK (status IN ('Active', 'On Leave', 'Resigned', 'Suspended')),
+    joining_date DATE DEFAULT CURRENT_DATE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS attendance_records (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
+    employee_id UUID REFERENCES employees(id),
+    employee_name VARCHAR(255) NOT NULL,
+    date DATE DEFAULT CURRENT_DATE,
+    clock_in TIMESTAMPTZ DEFAULT NOW(),
+    clock_out TIMESTAMPTZ,
+    status VARCHAR(20) DEFAULT 'Present' CHECK (status IN ('Present', 'Half Day', 'Late', 'Absent')),
+    location_lat NUMERIC(10, 7),
+    location_lng NUMERIC(10, 7),
+    is_geofence_verified BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- 5. ROW LEVEL SECURITY (RLS) POLICIES
 ALTER TABLE companies ENABLE ROW LEVEL SECURITY;
 ALTER TABLE company_branches ENABLE ROW LEVEL SECURITY;
@@ -202,3 +316,58 @@ DROP TRIGGER IF EXISTS trg_update_stock ON inventory_transactions;
 CREATE TRIGGER trg_update_stock
 AFTER INSERT ON inventory_transactions
 FOR EACH ROW EXECUTE FUNCTION update_product_stock();
+
+-- 7. SOLE SUPER ADMIN AUTOMATIC PROVISIONING TRIGGER
+-- Ensures 'brickserpsoftware@gmail.com' is automatically provisioned as Super Admin when created in auth.users
+CREATE OR REPLACE FUNCTION public.handle_super_admin_user() RETURNS TRIGGER AS $$
+DECLARE
+    platform_company_id UUID;
+BEGIN
+    IF LOWER(NEW.email) = 'brickserpsoftware@gmail.com' THEN
+        -- Check or create master platform company
+        SELECT id INTO platform_company_id FROM public.companies WHERE gstin = '27PLATFORM00001' LIMIT 1;
+        IF platform_company_id IS NULL THEN
+            INSERT INTO public.companies (
+                name, gstin, pan, email, phone,
+                subscription_plan, subscription_status,
+                admin_name, admin_email, max_workers, max_branches
+            )
+            VALUES (
+                'Patterns ERP Cloud Platform Master', '27PLATFORM00001', 'PLATFORM00',
+                'brickserpsoftware@gmail.com', '+91 90000 00001',
+                'Enterprise', 'Active',
+                'Platform Super Admin', 'brickserpsoftware@gmail.com', 9999, 999
+            )
+            RETURNING id INTO platform_company_id;
+        END IF;
+
+        -- Create or update user profile as Super Admin
+        INSERT INTO public.user_profiles (
+            id, company_id, email, full_name, phone, role,
+            designation, department, status, permissions
+        )
+        VALUES (
+            NEW.id,
+            platform_company_id,
+            NEW.email,
+            'Patterns Cloud Super Admin',
+            '+91 90000 00001',
+            'Super Admin',
+            'Sole Platform Owner & Super Admin',
+            'Platform Architecture & Licensing',
+            'Active',
+            '["all"]'::jsonb
+        )
+        ON CONFLICT (id) DO UPDATE SET 
+            role = 'Super Admin',
+            status = 'Active',
+            permissions = '["all"]'::jsonb;
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+DROP TRIGGER IF EXISTS trg_on_auth_user_super_admin ON auth.users;
+CREATE TRIGGER trg_on_auth_user_super_admin
+AFTER INSERT ON auth.users
+FOR EACH ROW EXECUTE FUNCTION public.handle_super_admin_user();
