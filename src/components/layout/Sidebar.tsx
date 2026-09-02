@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
@@ -25,10 +25,14 @@ import {
   Sparkles,
   KeyRound,
   ShieldAlert,
+  Trash2,
+  AlertTriangle,
 } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { UserRole } from '../../types';
 import { PermissionAction } from '../../lib/permissions';
+import { Modal } from '../ui/Modal';
+import { Button } from '../ui/Button';
 
 interface NavItem {
   name: string;
@@ -49,8 +53,13 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
-  const { user, company, companies, selectCompany, role, switchRole, logout, hasPermission } = useAuth();
+  const { user, company, companies, selectCompany, role, switchRole, logout, deleteCurrentProfile, hasPermission } = useAuth();
   const isSuperAdminUser = user?.email?.trim().toLowerCase() === 'brickserpsoftware@gmail.com';
+
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
+  const [isDeletingProfile, setIsDeletingProfile] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   const navGroups: NavGroup[] = [
     ...(isSuperAdminUser
@@ -226,29 +235,179 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
 
       {/* User Footer Profile */}
       <div className="p-3 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
-        <div className="flex items-center gap-2.5 overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setIsProfileModalOpen(true)}
+          className="flex items-center gap-2.5 overflow-hidden text-left p-1 rounded-xl hover:bg-slate-200/60 transition-all flex-1 mr-1"
+          title="View Account Details & Profile Settings"
+        >
           <img
             src={user?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
             alt="Avatar"
             className="w-8 h-8 rounded-full border border-slate-300 object-cover shrink-0"
           />
-          <div className="overflow-hidden text-left">
+          <div className="overflow-hidden">
             <p className="text-xs font-bold text-slate-900 truncate">{user?.full_name}</p>
             <p className="text-[10px] text-slate-500 font-semibold truncate">
               {role === 'Super Admin'
                 ? 'Platform Super Admin (Owner)'
-                : 'End User (Factory Client)'}
+                : `${user?.role || 'End User'} (Factory)`}
             </p>
           </div>
-        </div>
+        </button>
         <button
           onClick={logout}
           title="Sign Out"
-          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors shrink-0"
         >
           <LogOut className="w-4 h-4" />
         </button>
       </div>
+
+      {/* Account & Profile Modal */}
+      <Modal
+        isOpen={isProfileModalOpen}
+        onClose={() => {
+          setIsProfileModalOpen(false);
+          setIsConfirmDeleteOpen(false);
+          setDeleteError('');
+        }}
+        title="My Account & Profile Settings"
+      >
+        <div className="space-y-4">
+          {/* User Header Summary */}
+          <div className="flex items-center gap-3.5 p-3.5 bg-slate-50 border border-slate-200 rounded-2xl">
+            <img
+              src={user?.avatar_url || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}
+              alt="Avatar"
+              className="w-12 h-12 rounded-2xl border border-slate-200 object-cover"
+            />
+            <div className="space-y-0.5">
+              <h4 className="text-sm font-black text-slate-900 leading-tight">{user?.full_name}</h4>
+              <p className="text-xs text-slate-500 font-medium">{user?.email}</p>
+              <div className="flex items-center gap-1.5 pt-1">
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold ${
+                  role === 'Super Admin'
+                    ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                    : 'bg-slate-200 text-slate-800'
+                }`}>
+                  {user?.role || role}
+                </span>
+                <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  Active Profile
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Profile Details List */}
+          <div className="grid grid-cols-2 gap-2.5 text-xs">
+            <div className="p-2.5 bg-slate-50 border border-slate-100 rounded-xl">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Department</span>
+              <span className="font-semibold text-slate-800">{user?.department || 'Operations'}</span>
+            </div>
+            <div className="p-2.5 bg-slate-50 border border-slate-100 rounded-xl">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Designation</span>
+              <span className="font-semibold text-slate-800">{user?.designation || user?.role || 'Plant User'}</span>
+            </div>
+            <div className="p-2.5 bg-slate-50 border border-slate-100 rounded-xl">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Phone</span>
+              <span className="font-semibold text-slate-800">{user?.phone || 'Not provided'}</span>
+            </div>
+            <div className="p-2.5 bg-slate-50 border border-slate-100 rounded-xl">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Active Company</span>
+              <span className="font-semibold text-slate-800 truncate block">{company?.name || 'Patterns Enterprise'}</span>
+            </div>
+          </div>
+
+          {deleteError && (
+            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 font-medium flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
+              <span>{deleteError}</span>
+            </div>
+          )}
+
+          {/* DANGER ZONE / PROFILE DELETION */}
+          {role === 'Super Admin' || user?.email?.toLowerCase() === 'brickserpsoftware@gmail.com' ? (
+            /* Super Admin Protection Banner (NO DELETE OPTION) */
+            <div className="p-3 bg-amber-50/80 border border-amber-200 rounded-2xl flex items-start gap-2.5">
+              <ShieldCheck className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+              <div className="text-xs">
+                <p className="font-bold text-amber-900">Platform Super Admin Root Account</p>
+                <p className="text-amber-700/90 text-[11px] mt-0.5">
+                  This is the permanent platform administrator account. Deletion is disabled by system policy to preserve database governance.
+                </p>
+              </div>
+            </div>
+          ) : (
+            /* End-User Profile Deletion Option */
+            <div className="pt-2 border-t border-slate-200 space-y-2.5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h5 className="text-xs font-bold text-rose-600 flex items-center gap-1.5">
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Danger Zone: Delete Account Profile</span>
+                  </h5>
+                  <p className="text-[11px] text-slate-500">
+                    Permanently delete your profile and remove your account from this workspace.
+                  </p>
+                </div>
+                {!isConfirmDeleteOpen && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="border-rose-300 text-rose-600 hover:bg-rose-50 text-xs font-bold shrink-0"
+                    onClick={() => setIsConfirmDeleteOpen(true)}
+                  >
+                    Delete Profile
+                  </Button>
+                )}
+              </div>
+
+              {isConfirmDeleteOpen && (
+                <div className="p-3 bg-rose-50 border border-rose-200 rounded-2xl space-y-2.5 animate-in fade-in duration-200">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                    <p className="text-xs text-rose-800 font-medium">
+                      Are you sure you want to delete your profile? You will be signed out immediately and this action cannot be undone.
+                    </p>
+                  </div>
+                  <div className="flex gap-2 justify-end">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-xs"
+                      onClick={() => setIsConfirmDeleteOpen(false)}
+                      disabled={isDeletingProfile}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="danger"
+                      size="sm"
+                      className="text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white"
+                      isLoading={isDeletingProfile}
+                      onClick={async () => {
+                        setIsDeletingProfile(true);
+                        setDeleteError('');
+                        try {
+                          await deleteCurrentProfile();
+                          setIsProfileModalOpen(false);
+                        } catch (err: any) {
+                          setDeleteError(err.message || 'Failed to delete profile.');
+                          setIsDeletingProfile(false);
+                        }
+                      }}
+                    >
+                      Yes, Delete My Profile
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </Modal>
     </aside>
   );
 };

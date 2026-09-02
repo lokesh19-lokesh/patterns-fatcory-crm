@@ -114,6 +114,100 @@ export async function fetchLiveUserProfile(email: string): Promise<UserProfile |
   }
 }
 
+export async function verifyLiveUserLogin(email: string, password: string): Promise<{
+  isValid: boolean;
+  userId?: string;
+  companyId?: string;
+  userRole?: string;
+  userFullName?: string;
+}> {
+  try {
+    const { data, error } = await supabase.rpc('verify_user_login', {
+      p_email: email.trim().toLowerCase(),
+      p_password: password,
+    });
+
+    if (error || !data || data.length === 0) {
+      return { isValid: false };
+    }
+
+    const row = data[0];
+    return {
+      isValid: !!row.is_valid,
+      userId: row.user_id,
+      companyId: row.company_id,
+      userRole: row.user_role,
+      userFullName: row.user_full_name,
+    };
+  } catch (err) {
+    console.error('verifyLiveUserLogin error:', err);
+    return { isValid: false };
+  }
+}
+
+export async function generateLiveUserOtp(email: string, purpose: 'login' | 'reset_password' = 'reset_password'): Promise<string | null> {
+  const cleanEmail = email.trim().toLowerCase();
+
+  try {
+    // 1. Trigger Supabase native auth SMTP email dispatch
+    if (purpose === 'reset_password') {
+      supabase.auth.resetPasswordForEmail(cleanEmail, {
+        redirectTo: `${window.location.origin}/login`,
+      }).catch((e) => console.log('Supabase resetPasswordForEmail notice:', e));
+    } else {
+      supabase.auth.signInWithOtp({
+        email: cleanEmail,
+      }).catch((e) => console.log('Supabase signInWithOtp notice:', e));
+    }
+
+    // 2. Generate and store real 6-digit OTP in database
+    const { data, error } = await supabase.rpc('generate_user_otp', {
+      p_email: cleanEmail,
+    });
+
+    if (error || !data) return null;
+
+    // 3. Also dispatch via Resend email service
+    const { sendOtpEmail } = await import('./email');
+    await sendOtpEmail(cleanEmail, data as string, purpose);
+
+    return data as string;
+  } catch (err) {
+    console.error('generateLiveUserOtp error:', err);
+    return null;
+  }
+}
+
+export async function verifyLiveUserOtp(email: string, otp: string): Promise<boolean> {
+  try {
+    const { data, error } = await supabase.rpc('verify_user_otp', {
+      p_email: email.trim().toLowerCase(),
+      p_otp: otp.trim(),
+    });
+
+    if (error) return false;
+    return !!data;
+  } catch (err) {
+    console.error('verifyLiveUserOtp error:', err);
+    return false;
+  }
+}
+
+export async function resetLiveUserPassword(email: string, newPassword: string): Promise<boolean> {
+  try {
+    const { data, error } = await supabase.rpc('reset_user_password', {
+      p_email: email.trim().toLowerCase(),
+      p_new_password: newPassword,
+    });
+
+    if (error) return false;
+    return !!data;
+  } catch (err) {
+    console.error('resetLiveUserPassword error:', err);
+    return false;
+  }
+}
+
 export async function createLiveWorker(worker: Partial<UserProfile>): Promise<UserProfile | null> {
   try {
     const { data, error } = await supabase
@@ -156,6 +250,26 @@ export async function deleteLiveWorker(id: string): Promise<boolean> {
     return true;
   } catch (err) {
     console.error('deleteLiveWorker error:', err);
+    return false;
+  }
+}
+
+export async function deleteEndUserProfile(id: string, email: string): Promise<boolean> {
+  try {
+    const cleanEmail = email.trim().toLowerCase();
+    if (cleanEmail === 'brickserpsoftware@gmail.com') {
+      throw new Error('Super Admin profile is protected and cannot be deleted.');
+    }
+
+    const { error } = await supabase
+      .from('user_profiles')
+      .delete()
+      .eq('id', id);
+
+    if (error) throw error;
+    return true;
+  } catch (err) {
+    console.error('deleteEndUserProfile error:', err);
     return false;
   }
 }

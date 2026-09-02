@@ -41,11 +41,14 @@ import { Branch, UserProfile } from '../../types';
 import { AVAILABLE_WORKER_PERMISSIONS, PermissionAction } from '../../lib/permissions';
 
 export const CompanyPage: React.FC = () => {
-  const { company, workers, addWorker, updateWorker, deleteWorker, switchRole, user } = useAuth();
+  const { company, workers, addWorker, updateWorker, deleteWorker, switchRole, user, role, deleteCurrentProfile } = useAuth();
   const [activeTab, setActiveTab] = useState('workers');
   const [isAddBranchOpen, setIsAddBranchOpen] = useState(false);
   const [isAddWorkerOpen, setIsAddWorkerOpen] = useState(false);
   const [editingWorker, setEditingWorker] = useState<UserProfile | null>(null);
+  const [isConfirmAccountDeleteOpen, setIsConfirmAccountDeleteOpen] = useState(false);
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [accountDeleteError, setAccountDeleteError] = useState('');
 
   const [branches, setBranches] = useState<Branch[]>([
     {
@@ -663,6 +666,95 @@ export const CompanyPage: React.FC = () => {
                   </div>
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* DANGER ZONE / ACCOUNT SETTINGS */}
+          <Card className="lg:col-span-3 border-rose-200">
+            <CardHeader className="bg-rose-50/50 rounded-t-2xl border-b border-rose-100">
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-rose-900 text-sm flex items-center gap-2">
+                    <Trash2 className="w-4 h-4 text-rose-600" />
+                    <span>Account Security & Profile Removal</span>
+                  </CardTitle>
+                  <p className="text-xs text-rose-700/80 mt-0.5">
+                    Account lifecycle and database profile management
+                  </p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6 space-y-4">
+              {role === 'Super Admin' || user?.email?.toLowerCase() === 'brickserpsoftware@gmail.com' ? (
+                <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl flex items-start gap-3">
+                  <ShieldCheck className="w-5 h-5 text-amber-700 shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="text-xs font-bold text-amber-950 uppercase tracking-wider">
+                      Permanent Platform Master Account (Super Admin)
+                    </h4>
+                    <p className="text-xs text-amber-800/90 mt-1">
+                      This is the root Super Admin account. Deletion is permanently disabled to ensure platform continuity and subscription management authority.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-rose-50/60 rounded-2xl border border-rose-200">
+                  <div className="space-y-1">
+                    <h4 className="text-xs font-black text-rose-950 uppercase tracking-wider">
+                      Delete My Account Profile
+                    </h4>
+                    <p className="text-xs text-rose-800">
+                      Permanently delete your profile and account access from this factory workspace. This action cannot be undone.
+                    </p>
+                  </div>
+                  {!isConfirmAccountDeleteOpen ? (
+                    <Button
+                      variant="outline"
+                      className="border-rose-300 text-rose-700 hover:bg-rose-100 text-xs font-bold shrink-0"
+                      onClick={() => setIsConfirmAccountDeleteOpen(true)}
+                    >
+                      Delete Profile
+                    </Button>
+                  ) : (
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="text-xs"
+                        onClick={() => setIsConfirmAccountDeleteOpen(false)}
+                        disabled={isDeletingAccount}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant="danger"
+                        size="sm"
+                        className="text-xs font-bold bg-rose-600 hover:bg-rose-700 text-white"
+                        isLoading={isDeletingAccount}
+                        onClick={async () => {
+                          setIsDeletingAccount(true);
+                          setAccountDeleteError('');
+                          try {
+                            await deleteCurrentProfile();
+                          } catch (err: any) {
+                            setAccountDeleteError(err.message || 'Failed to delete profile.');
+                            setIsDeletingAccount(false);
+                          }
+                        }}
+                      >
+                        Confirm Delete
+                      </Button>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {accountDeleteError && (
+                <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 font-medium flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
+                  <span>{accountDeleteError}</span>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

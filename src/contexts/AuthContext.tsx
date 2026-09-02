@@ -5,11 +5,16 @@ import {
   fetchLiveCompanies,
   fetchLiveWorkers,
   fetchLiveUserProfile,
+  verifyLiveUserLogin,
+  generateLiveUserOtp,
+  verifyLiveUserOtp,
+  resetLiveUserPassword,
   createLiveCompany,
   updateLiveCompanySubscription,
   createLiveWorker,
   updateLiveWorker,
   deleteLiveWorker,
+  deleteEndUserProfile,
 } from '../lib/api';
 
 export const SOLE_SUPER_ADMIN_EMAIL = 'brickserpsoftware@gmail.com';
@@ -23,6 +28,10 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, password?: string, role?: UserRole, customPermissions?: PermissionAction[]) => Promise<void>;
+  loginWithOtp: (email: string, otp: string) => Promise<void>;
+  sendOtp: (email: string) => Promise<string>;
+  resetPassword: (email: string, newPassword: string) => Promise<boolean>;
+  deleteCurrentProfile: () => Promise<boolean>;
   signUp: (params: {
     fullName: string;
     email: string;
@@ -154,7 +163,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const currentCompany = companies.find((c) => c.id === selectedCompanyId) || companies[0] || null;
 
-  // 1. Dynamic Login Function (Strict Database Verification)
+  // 1. Dynamic Login Function with STRICT Database Password Verification
   const login = async (
     email: string,
     password?: string,
@@ -162,12 +171,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     customPermissions?: PermissionAction[]
   ) => {
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 250));
 
     const cleanEmail = email.trim().toLowerCase();
     const isSuperAdmin = cleanEmail === SOLE_SUPER_ADMIN_EMAIL.toLowerCase();
 
-    // 1. Fetch live user profile directly from Supabase PostgreSQL
+    // 1. If password is provided, strictly verify password against live PostgreSQL hash
+    if (password) {
+      const authResult = await verifyLiveUserLogin(cleanEmail, password);
+
+      if (!authResult.isValid) {
+        setIsLoading(false);
+        throw new Error('Incorrect password. Please verify your credentials and try again.');
+      }
+    }
+
+    // 2. Fetch live user profile directly from Supabase PostgreSQL
     const liveProfile = await fetchLiveUserProfile(cleanEmail);
 
     let loggedUser: UserProfile;
@@ -181,7 +199,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSelectedCompanyId(liveProfile.company_id);
       }
     } else if (isSuperAdmin) {
-      // Platform Super Admin
       loggedUser = {
         id: 'usr_super_admin',
         company_id: currentCompany?.id || 'platform_master',
@@ -196,7 +213,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         permissions: ['all'],
       };
     } else {
-      // Non-registered email trying to log in without an account
       setIsLoading(false);
       throw new Error(
         'Account not found. No registered factory workspace matches this email. Please click "Sign Up New Factory" to create your account.'
@@ -210,7 +226,76 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setIsLoading(false);
   };
 
-  // 2. Dynamic Sign Up Function (Creates Company & User in DB)
+  // 2. Instant OTP Verification Login
+  const loginWithOtp = async (email: string, otp: string) => {
+    setIsLoading(true);
+    const cleanEmail = email.trim().toLowerCase();
+
+    const isValid = await verifyLiveUserOtp(cleanEmail, otp);
+
+    if (!isValid) {
+      setIsLoading(false);
+      throw new Error('Invalid or expired OTP code. Please enter the correct 6-digit verification code.');
+    }
+
+    // Fetch user profile from database
+    const liveProfile = await fetchLiveUserProfile(cleanEmail);
+    const isSuperAdmin = cleanEmail === SOLE_SUPER_ADMIN_EMAIL.toLowerCase();
+
+    if (!liveProfile && !isSuperAdmin) {
+      setIsLoading(false);
+      throw new Error('No user profile found for this email. Please sign up to register your factory.');
+    }
+
+    const loggedUser: UserProfile = liveProfile || {
+      id: 'usr_super_admin',
+      company_id: currentCompany?.id || 'platform_master',
+      email: SOLE_SUPER_ADMIN_EMAIL,
+      full_name: 'Patterns Super Admin',
+      phone: '+91 90000 00001',
+      role: 'Super Admin',
+      department: 'Platform Architecture & Subscriptions',
+      designation: 'Sole Super Admin (Us)',
+      status: 'Active',
+      created_at: new Date().toISOString(),
+      permissions: ['all'],
+    };
+
+    const detectedRole: UserRole = isSuperAdmin ? 'Super Admin' : loggedUser.role;
+
+    setUser(loggedUser);
+    setRole(detectedRole);
+    if (loggedUser.company_id) {
+      setSelectedCompanyId(loggedUser.company_id);
+    }
+    setIsLoading(false);
+  };
+
+  // 3. Send OTP to Email
+  const sendOtp = async (email: string): Promise<string> => {
+    const cleanEmail = email.trim().toLowerCase();
+    const otpCode = await generateLiveUserOtp(cleanEmail);
+
+    if (!otpCode) {
+      throw new Error('Could not generate OTP. Please verify this email is registered.');
+    }
+
+    return otpCode;
+  };
+
+  // 4. Reset User Password
+  const resetPassword = async (email: string, newPassword: string): Promise<boolean> => {
+    const cleanEmail = email.trim().toLowerCase();
+    const success = await resetLiveUserPassword(cleanEmail, newPassword);
+
+    if (!success) {
+      throw new Error('Password reset failed. Please ensure the email address is registered.');
+    }
+
+    return true;
+  };
+
+  // 5. Dynamic Sign Up Function (Creates Company & User in DB)
   const signUp = async (params: {
     fullName: string;
     email: string;
@@ -444,6 +529,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await deleteLiveWorker(id);
   };
 
+  const deleteCurrentProfile = async (): Promise<boolean> => {
+    if (!user) return false;
+    const cleanEmail = user.email.trim().toLowerCase();
+    
+    // Strict guard: Super Admin can NEVER be deleted
+    if (cleanEmail === SOLE_SUPER_ADMIN_EMAIL.toLowerCase() || role === 'Super Admin') {
+      throw new Error('Super Admin profile is the permanent platform master and cannot be deleted.');
+    }
+
+    try {
+      const success = await deleteEndUserProfile(user.id, user.email);
+      if (success) {
+        logout();
+        return true;
+      }
+      return false;
+    } catch (err: any) {
+      console.error('deleteCurrentProfile error:', err);
+      throw err;
+    }
+  };
+
   const hasPermission = (permission: PermissionAction): boolean => {
     if (!user) return false;
     return hasRolePermission(role, permission, user);
@@ -460,6 +567,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isAuthenticated: !!user,
         isLoading,
         login,
+        loginWithOtp,
+        sendOtp,
+        resetPassword,
+        deleteCurrentProfile,
         signUp,
         logout,
         switchRole,
