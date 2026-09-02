@@ -154,7 +154,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const currentCompany = companies.find((c) => c.id === selectedCompanyId) || companies[0] || null;
 
-  // 1. Dynamic Login Function
+  // 1. Dynamic Login Function (Strict Database Verification)
   const login = async (
     email: string,
     password?: string,
@@ -166,9 +166,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const cleanEmail = email.trim().toLowerCase();
     const isSuperAdmin = cleanEmail === SOLE_SUPER_ADMIN_EMAIL.toLowerCase();
-    const detectedRole: UserRole = isSuperAdmin ? 'Super Admin' : (explicitRole || 'End User');
 
-    // 1. Fetch live user profile from Supabase PostgreSQL
+    // 1. Fetch live user profile directly from Supabase PostgreSQL
     const liveProfile = await fetchLiveUserProfile(cleanEmail);
 
     let loggedUser: UserProfile;
@@ -178,8 +177,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         ...liveProfile,
         role: isSuperAdmin ? 'Super Admin' : liveProfile.role,
       };
+      if (liveProfile.company_id) {
+        setSelectedCompanyId(liveProfile.company_id);
+      }
     } else if (isSuperAdmin) {
-      // Dynamic fallback for platform owner if first run
+      // Platform Super Admin
       loggedUser = {
         id: 'usr_super_admin',
         company_id: currentCompany?.id || 'platform_master',
@@ -194,22 +196,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         permissions: ['all'],
       };
     } else {
-      // End User profile derived dynamically
-      const matchedCompany = companies.find((c) => c.email.toLowerCase() === cleanEmail) || currentCompany;
-      loggedUser = {
-        id: `usr_${Date.now()}`,
-        company_id: matchedCompany?.id || selectedCompanyId,
-        email: cleanEmail,
-        full_name: cleanEmail.split('@')[0].toUpperCase().replace('.', ' '),
-        phone: '+91 98200 00000',
-        role: detectedRole,
-        department: 'Factory Management',
-        designation: 'Factory Operating Officer',
-        status: 'Active',
-        created_at: new Date().toISOString(),
-        permissions: customPermissions || ['all'],
-      };
+      // Non-registered email trying to log in without an account
+      setIsLoading(false);
+      throw new Error(
+        'Account not found. No registered factory workspace matches this email. Please click "Sign Up New Factory" to create your account.'
+      );
     }
+
+    const detectedRole: UserRole = isSuperAdmin ? 'Super Admin' : loggedUser.role;
 
     setUser(loggedUser);
     setRole(detectedRole);

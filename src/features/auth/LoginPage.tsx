@@ -321,48 +321,6 @@ export const LoginPage: React.FC = () => {
                   Sign In to ERP Cloud
                 </Button>
               </form>
-
-              {/* Quick 1-Click Role Login Demo */}
-              <div className="space-y-2 pt-2 border-t border-slate-100">
-                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider text-center">
-                  Quick 1-Click Role Login
-                </p>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEmail('brickserpsoftware@gmail.com');
-                      setPassword('Tpc@123');
-                    }}
-                    className="p-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl border border-slate-800 text-left transition-all group"
-                  >
-                    <div className="flex items-center gap-1.5 text-amber-400 font-bold text-[11px]">
-                      <Crown className="w-3.5 h-3.5" />
-                      <span>Super Admin</span>
-                    </div>
-                    <p className="text-[9px] text-slate-400 mt-0.5 leading-tight">
-                      brickserpsoftware@gmail.com
-                    </p>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setEmail('admin@apexmaterials.com');
-                      setPassword('Apex@1234');
-                    }}
-                    className="p-2.5 bg-red-50 hover:bg-red-100/80 text-slate-900 rounded-xl border border-red-200/80 text-left transition-all group"
-                  >
-                    <div className="flex items-center gap-1.5 text-[#D8232A] font-bold text-[11px]">
-                      <Building2 className="w-3.5 h-3.5" />
-                      <span>End User</span>
-                    </div>
-                    <p className="text-[9px] text-slate-600 mt-0.5 leading-tight">
-                      Factory Client & CRM OS
-                    </p>
-                  </button>
-                </div>
-              </div>
             </div>
           ) : (
             /* ========================================================= */
