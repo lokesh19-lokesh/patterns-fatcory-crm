@@ -90,6 +90,17 @@ export const ROLE_PERMISSIONS: Record<UserRole, PermissionAction[]> = {
     'manage_crm', 'view_reports', 'view_documents', 'manage_documents', 'view_settings'
   ],
 
+  'End User': [
+    'view_dashboard', 'view_production', 'manage_production', 'view_labour_wages', 'manage_labour_wages',
+    'manage_company', 'manage_users', 'view_customers', 'manage_customers',
+    'view_suppliers', 'manage_suppliers', 'view_products', 'manage_products', 'view_inventory',
+    'manage_inventory', 'view_purchase', 'manage_purchase', 'view_sales', 'manage_sales',
+    'view_billing', 'manage_billing', 'view_accounting', 'manage_accounting', 'view_projects',
+    'manage_projects', 'view_delivery', 'manage_delivery', 'view_employees', 'manage_employees',
+    'view_attendance', 'manage_attendance', 'view_payroll', 'manage_payroll', 'view_crm',
+    'manage_crm', 'view_reports', 'view_documents', 'manage_documents', 'view_settings'
+  ],
+
   'Admin': [
     'view_dashboard', 'view_production', 'manage_production', 'view_labour_wages', 'manage_labour_wages',
     'manage_company', 'manage_users', 'view_customers', 'manage_customers',

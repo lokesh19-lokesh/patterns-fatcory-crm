@@ -285,21 +285,23 @@ const DEFAULT_SUPER_ADMIN: UserProfile = {
   permissions: ['all'],
 };
 
-const DEFAULT_ADMIN: UserProfile = {
-  id: 'usr_admin_1001',
+const DEFAULT_END_USER: UserProfile = {
+  id: 'usr_enduser_1001',
   company_id: 'comp_77283',
   branch_id: 'br_1',
   email: 'admin@apexmaterials.com',
   full_name: 'Vikramaditya Sharma',
   phone: '+91 98200 11223',
-  role: 'Admin',
+  role: 'End User',
   avatar_url: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150',
-  department: 'Executive Management',
-  designation: 'Managing Director & Subscriber',
+  department: 'Plant Operations & Management',
+  designation: 'Factory Client & Business Owner',
   status: 'Active',
   created_at: '2024-01-15T00:00:00Z',
   permissions: ['all'],
 };
+
+const DEFAULT_ADMIN = DEFAULT_END_USER;
 
 const DEFAULT_WORKER: UserProfile = {
   id: 'usr_worker_2001',
@@ -346,12 +348,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const [user, setUser] = useState<UserProfile | null>(() => {
     const stored = localStorage.getItem('patterns_user');
-    return stored ? JSON.parse(stored) : DEFAULT_ADMIN;
+    return stored ? JSON.parse(stored) : DEFAULT_END_USER;
   });
 
   const [role, setRole] = useState<UserRole>(() => {
     const stored = localStorage.getItem('patterns_user');
-    return stored ? JSON.parse(stored).role : 'Admin';
+    return stored ? JSON.parse(stored).role : 'End User';
   });
 
   const [isLoading, setIsLoading] = useState(false);
@@ -407,32 +409,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await new Promise((resolve) => setTimeout(resolve, 300));
 
     const cleanEmail = email.trim().toLowerCase();
-    let detectedRole: UserRole = explicitRole || 'Admin';
+    let detectedRole: UserRole = explicitRole || 'End User';
     let loggedUser: UserProfile;
 
     if (cleanEmail === SOLE_SUPER_ADMIN_EMAIL.toLowerCase()) {
       detectedRole = 'Super Admin';
       loggedUser = { ...DEFAULT_SUPER_ADMIN, email: SOLE_SUPER_ADMIN_EMAIL };
     } else {
-      const matchedWorker = workers.find((w) => w.email.toLowerCase() === cleanEmail);
-      if (matchedWorker) {
-        detectedRole = 'Worker';
-        loggedUser = {
-          ...matchedWorker,
-          role: 'Worker',
-          permissions: matchedWorker.permissions && matchedWorker.permissions.length > 0
-            ? matchedWorker.permissions
-            : DEFAULT_WORKER.permissions,
-        };
-      } else {
-        detectedRole = explicitRole || 'Admin';
-        loggedUser = {
-          ...DEFAULT_ADMIN,
-          email: cleanEmail,
-          role: detectedRole,
-          full_name: cleanEmail.split('@')[0].toUpperCase().replace('.', ' '),
-        };
-      }
+      detectedRole = explicitRole || 'End User';
+      loggedUser = {
+        ...DEFAULT_END_USER,
+        email: cleanEmail,
+        role: detectedRole,
+        full_name: cleanEmail.split('@')[0].toUpperCase().replace('.', ' '),
+      };
     }
 
     setUser(loggedUser);
@@ -449,16 +439,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setRole(newRole);
     if (newRole === 'Super Admin') {
       setUser(DEFAULT_SUPER_ADMIN);
-    } else if (newRole === 'Worker') {
-      const mergedWorker: UserProfile = {
-        ...DEFAULT_WORKER,
-        ...(workerDetails || {}),
-        role: 'Worker',
-      };
-      setUser(mergedWorker);
     } else {
       setUser({
-        ...DEFAULT_ADMIN,
+        ...DEFAULT_END_USER,
         role: newRole,
       });
     }

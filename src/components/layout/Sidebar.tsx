@@ -146,66 +146,37 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
 
         {role === 'Super Admin' ? (
           <p className="text-[10px] font-black text-white truncate uppercase tracking-wider text-center px-2 bg-slate-900 py-0.5 rounded-md w-full border border-slate-800 flex items-center justify-center gap-1">
-            <Crown className="w-3 h-3 text-amber-400" /> Platform Super Admin
-          </p>
-        ) : role === 'Worker' ? (
-          <p className="text-[10px] font-bold text-blue-700 truncate uppercase tracking-wider text-center px-2 bg-blue-50 py-0.5 rounded-md w-full border border-blue-200">
-            Worker: {user?.worker_designation || 'Staff Member'}
+            <Crown className="w-3 h-3 text-amber-400" /> Platform Super Admin (Us)
           </p>
         ) : (
-          <p className="text-[10px] font-bold text-[#D8232A] truncate uppercase tracking-wider text-center px-2 bg-red-50 py-0.5 rounded-md w-full border border-red-100">
-            {company?.name || 'Apex Aggregates & Bricks'}
+          <p className="text-[10px] font-bold text-[#D8232A] truncate uppercase tracking-wider text-center px-2 bg-red-50 py-0.5 rounded-md w-full border border-red-100 flex items-center justify-center gap-1">
+            <Building2 className="w-3 h-3 text-[#D8232A]" /> End User: {company?.name || 'Apex Aggregates & Bricks'}
           </p>
         )}
       </div>
 
-      {/* 3-Tier Persona Quick Role Switcher */}
+      {/* 2-Role Mode Switcher */}
       <div className="px-3 py-2 bg-slate-50 border-b border-slate-200 space-y-1">
         <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
           <span className="flex items-center gap-1">
-            <Sliders className="w-3 h-3 text-[#D8232A]" /> Switch Role View:
+            <Sliders className="w-3 h-3 text-[#D8232A]" /> Active Role View:
           </span>
-          <span className="text-[9px] text-[#D8232A] font-extrabold">{role}</span>
+          <span className="text-[9px] text-[#D8232A] font-extrabold">{role === 'Super Admin' ? 'Super Admin' : 'End User'}</span>
         </label>
         <select
-          value={
-            role === 'Super Admin'
-              ? 'super_admin'
-              : role === 'Admin' || role === 'Company Admin'
-              ? 'admin'
-              : `worker_${user?.id || 'default'}`
-          }
+          value={role === 'Super Admin' ? 'super_admin' : 'end_user'}
           onChange={(e) => {
             const val = e.target.value;
             if (val === 'super_admin') {
               switchRole('Super Admin');
-            } else if (val === 'admin') {
-              switchRole('Admin');
-            } else if (val.startsWith('worker_')) {
-              const workerId = val.replace('worker_', '');
-              const matchedWorker = workers.find((w) => w.id === workerId) || workers[0];
-              if (matchedWorker) {
-                switchRole('Worker', matchedWorker);
-              } else {
-                switchRole('Worker');
-              }
+            } else {
+              switchRole('End User');
             }
           }}
           className="w-full bg-white border border-slate-300 text-xs font-semibold text-slate-800 rounded-lg px-2 py-1.5 focus:outline-none focus:border-[#D8232A] focus:ring-1 focus:ring-[#D8232A]"
         >
-          <optgroup label="1. Platform Owner">
-            <option value="super_admin">👑 Super Admin (All Tenants & Subscriptions)</option>
-          </optgroup>
-          <optgroup label="2. Company Subscriber">
-            <option value="admin">🏢 Admin (Company Owner & Factory Operations)</option>
-          </optgroup>
-          <optgroup label="3. Workers (Admin-Assigned Permissions)">
-            {workers.map((w) => (
-              <option key={w.id} value={`worker_${w.id}`}>
-                👷 Worker: {w.full_name} ({w.worker_designation || w.department})
-              </option>
-            ))}
-          </optgroup>
+          <option value="super_admin">👑 Super Admin (Subscriptions & Accounting)</option>
+          <option value="end_user">🏭 End User (Factory Client / Full Factory OS)</option>
         </select>
       </div>
 
@@ -254,10 +225,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
             <p className="text-xs font-bold text-slate-900 truncate">{user?.full_name}</p>
             <p className="text-[10px] text-slate-500 font-semibold truncate">
               {role === 'Super Admin'
-                ? 'Platform Super Admin'
-                : role === 'Worker'
-                ? `Worker (${user?.permissions?.length || 0} modules)`
-                : 'Company Admin'}
+                ? 'Platform Super Admin (Owner)'
+                : 'End User (Factory Client)'}
             </p>
           </div>
         </div>
