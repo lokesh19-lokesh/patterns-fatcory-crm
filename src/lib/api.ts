@@ -98,6 +98,22 @@ export async function fetchLiveWorkers(companyId?: string): Promise<UserProfile[
   }
 }
 
+export async function fetchLiveUserProfile(email: string): Promise<UserProfile | null> {
+  try {
+    const { data, error } = await supabase
+      .from('user_profiles')
+      .select('*')
+      .eq('email', email.trim().toLowerCase())
+      .maybeSingle();
+
+    if (error || !data) return null;
+    return data as UserProfile;
+  } catch (err) {
+    console.error('fetchLiveUserProfile error:', err);
+    return null;
+  }
+}
+
 export async function createLiveWorker(worker: Partial<UserProfile>): Promise<UserProfile | null> {
   try {
     const { data, error } = await supabase

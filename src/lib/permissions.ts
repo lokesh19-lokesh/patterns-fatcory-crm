@@ -175,13 +175,12 @@ export const ROLE_PERMISSIONS: Record<UserRole, PermissionAction[]> = {
 };
 
 export function hasRolePermission(role: UserRole, action: PermissionAction, user?: UserProfile | null): boolean {
-  if (role === 'Super Admin') return true;
-
-  // If user is a Worker and has specific custom permissions assigned by their Admin:
-  if (role === 'Worker' && user?.permissions && user.permissions.length > 0) {
-    // If the assigned array contains the action or 'all'
-    return user.permissions.includes(action) || user.permissions.includes('all');
+  // STRICT RULE: Only the sole platform owner email 'brickserpsoftware@gmail.com' can access super admin controls
+  if (action === 'view_super_admin' || action === 'manage_subscriptions') {
+    return user?.email?.trim().toLowerCase() === 'brickserpsoftware@gmail.com';
   }
+
+  if (role === 'Super Admin') return true;
 
   const permissions = ROLE_PERMISSIONS[role] || [];
   return permissions.includes(action);

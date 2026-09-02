@@ -50,9 +50,10 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
   const { user, company, companies, selectCompany, role, switchRole, logout, hasPermission } = useAuth();
+  const isSuperAdminUser = user?.email?.trim().toLowerCase() === 'brickserpsoftware@gmail.com';
 
   const navGroups: NavGroup[] = [
-    ...(role === 'Super Admin'
+    ...(isSuperAdminUser
       ? [
           {
             title: 'PLATFORM OWNER CONTROL',
@@ -144,7 +145,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
           </div>
         </div>
 
-        {role === 'Super Admin' ? (
+        {isSuperAdminUser ? (
           <p className="text-[10px] font-black text-white truncate uppercase tracking-wider text-center px-2 bg-slate-900 py-0.5 rounded-md w-full border border-slate-800 flex items-center justify-center gap-1">
             <Crown className="w-3 h-3 text-amber-400" /> Platform Super Admin (Us)
           </p>
@@ -156,7 +157,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
       </div>
 
       {/* Dynamic Company / Tenant Inspector for Super Admin or Company Card for End User */}
-      {role === 'Super Admin' ? (
+      {isSuperAdminUser ? (
         <div className="px-3 py-2 bg-slate-50 border-b border-slate-200 space-y-1">
           <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
             <span className="flex items-center gap-1">

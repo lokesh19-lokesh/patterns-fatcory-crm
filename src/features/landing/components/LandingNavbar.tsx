@@ -50,19 +50,19 @@ export const LandingNavbar: React.FC = () => {
             <span>8500693113</span>
           </a>
 
-          <Link to="/login">
-            <Button variant="ghost" size="sm" className="text-slate-800 hover:text-[#D8232A] font-semibold">
+          <Link to="/login?tab=signin">
+            <Button variant="ghost" size="sm" className="text-slate-800 hover:text-[#D8232A] font-bold text-xs">
               Sign In
             </Button>
           </Link>
 
-          <Link to="/login">
+          <Link to="/login?tab=signup">
             <Button
               size="sm"
-              className="bg-[#D8232A] hover:bg-[#B91C1C] text-white font-bold px-4 py-2 rounded-lg shadow-md shadow-[#D8232A]/20 transition-transform active:scale-95"
-              icon={<ArrowRight className="w-4 h-4" />}
+              className="bg-[#D8232A] hover:bg-[#B91C1C] text-white font-bold px-4 py-2 rounded-lg shadow-md shadow-[#D8232A]/20 transition-transform active:scale-95 text-xs"
+              icon={<ArrowRight className="w-3.5 h-3.5" />}
             >
-              Go to Portal
+              Sign Up Free
             </Button>
           </Link>
         </div>
