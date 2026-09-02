@@ -34,8 +34,10 @@ export const SuperAdminPage: React.FC = () => {
     updateCompanySubscription,
     addCompany,
     selectCompany,
+    refreshLiveData,
     company: activeCompany,
   } = useAuth();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -175,6 +177,19 @@ export const SuperAdminPage: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap items-center gap-2.5">
+            <Button
+              variant="outline"
+              size="sm"
+              icon={<RefreshCw className={`w-4 h-4 text-slate-300 ${isRefreshing ? 'animate-spin' : ''}`} />}
+              onClick={async () => {
+                setIsRefreshing(true);
+                await refreshLiveData();
+                setTimeout(() => setIsRefreshing(false), 500);
+              }}
+              className="bg-slate-800/80 border-slate-700 text-slate-200 hover:bg-slate-700"
+            >
+              Sync Live DB
+            </Button>
             <Button
               variant="primary"
               size="sm"

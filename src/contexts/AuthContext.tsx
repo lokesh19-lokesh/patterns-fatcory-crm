@@ -36,6 +36,7 @@ interface AuthContextType {
   updateWorker: (id: string, updates: Partial<UserProfile>) => void;
   deleteWorker: (id: string) => void;
   hasPermission: (permission: PermissionAction) => boolean;
+  refreshLiveData: () => Promise<void>;
 }
 
 export const INITIAL_COMPANIES: Company[] = [
@@ -378,24 +379,42 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.setItem('patterns_selected_comp_id', selectedCompanyId);
   }, [selectedCompanyId]);
 
-  useEffect(() => {
-    // Initial fetch from live Supabase
-    async function loadLiveSupabaseData() {
-      try {
-        const liveCompanies = await fetchLiveCompanies();
-        if (liveCompanies && liveCompanies.length > 0) {
-          setCompanies(liveCompanies);
-        }
-        const liveWorkers = await fetchLiveWorkers();
-        if (liveWorkers && liveWorkers.length > 0) {
-          setWorkers(liveWorkers);
-        }
-      } catch (e) {
-        console.warn('Initial Supabase live data load notice:', e);
+  const refreshLiveData = async () => {
+    setIsLoading(true);
+    try {
+      const liveCompanies = await fetchLiveCompanies();
+      if (liveCompanies && liveCompanies.length > 0) {
+        setCompanies(liveCompanies);
       }
+      const liveWorkers = await fetchLiveWorkers();
+      if (liveWorkers && liveWorkers.length > 0) {
+        setWorkers(liveWorkers);
+      }
+    } catch (e) {
+      console.warn('Refresh live data error:', e);
+    } finally {
+      setIsLoading(false);
     }
+  };
+
+  useEffect(() => {
     loadLiveSupabaseData();
   }, []);
+
+  async function loadLiveSupabaseData() {
+    try {
+      const liveCompanies = await fetchLiveCompanies();
+      if (liveCompanies && liveCompanies.length > 0) {
+        setCompanies(liveCompanies);
+      }
+      const liveWorkers = await fetchLiveWorkers();
+      if (liveWorkers && liveWorkers.length > 0) {
+        setWorkers(liveWorkers);
+      }
+    } catch (e) {
+      console.warn('Initial Supabase live data load notice:', e);
+    }
+  }
 
   const currentCompany = companies.find((c) => c.id === selectedCompanyId) || companies[0] || null;
 
@@ -623,6 +642,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateWorker,
         deleteWorker,
         hasPermission,
+        refreshLiveData,
       }}
     >
       {children}

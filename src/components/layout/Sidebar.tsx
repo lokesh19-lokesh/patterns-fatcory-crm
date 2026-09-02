@@ -49,7 +49,7 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
-  const { user, company, role, switchRole, logout, hasPermission, workers } = useAuth();
+  const { user, company, companies, selectCompany, role, switchRole, logout, hasPermission } = useAuth();
 
   const navGroups: NavGroup[] = [
     ...(role === 'Super Admin'
@@ -150,35 +150,45 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onCloseMobile }) => {
           </p>
         ) : (
           <p className="text-[10px] font-bold text-[#D8232A] truncate uppercase tracking-wider text-center px-2 bg-red-50 py-0.5 rounded-md w-full border border-red-100 flex items-center justify-center gap-1">
-            <Building2 className="w-3 h-3 text-[#D8232A]" /> End User: {company?.name || 'Apex Aggregates & Bricks'}
+            <Building2 className="w-3 h-3 text-[#D8232A]" /> {company?.name || 'Factory Client'}
           </p>
         )}
       </div>
 
-      {/* 2-Role Mode Switcher */}
-      <div className="px-3 py-2 bg-slate-50 border-b border-slate-200 space-y-1">
-        <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
-          <span className="flex items-center gap-1">
-            <Sliders className="w-3 h-3 text-[#D8232A]" /> Active Role View:
-          </span>
-          <span className="text-[9px] text-[#D8232A] font-extrabold">{role === 'Super Admin' ? 'Super Admin' : 'End User'}</span>
-        </label>
-        <select
-          value={role === 'Super Admin' ? 'super_admin' : 'end_user'}
-          onChange={(e) => {
-            const val = e.target.value;
-            if (val === 'super_admin') {
-              switchRole('Super Admin');
-            } else {
-              switchRole('End User');
-            }
-          }}
-          className="w-full bg-white border border-slate-300 text-xs font-semibold text-slate-800 rounded-lg px-2 py-1.5 focus:outline-none focus:border-[#D8232A] focus:ring-1 focus:ring-[#D8232A]"
-        >
-          <option value="super_admin">👑 Super Admin (Subscriptions & Accounting)</option>
-          <option value="end_user">🏭 End User (Factory Client / Full Factory OS)</option>
-        </select>
-      </div>
+      {/* Dynamic Company / Tenant Inspector for Super Admin or Company Card for End User */}
+      {role === 'Super Admin' ? (
+        <div className="px-3 py-2 bg-slate-50 border-b border-slate-200 space-y-1">
+          <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider flex items-center justify-between">
+            <span className="flex items-center gap-1">
+              <Building2 className="w-3 h-3 text-[#D8232A]" /> Inspect Tenant:
+            </span>
+            <span className="text-[9px] text-[#D8232A] font-extrabold">{company?.name ? company.name.split(' ')[0] : 'All'}</span>
+          </label>
+          <select
+            value={company?.id || ''}
+            onChange={(e) => {
+              selectCompany(e.target.value);
+            }}
+            className="w-full bg-white border border-slate-300 text-xs font-semibold text-slate-800 rounded-lg px-2 py-1.5 focus:outline-none focus:border-[#D8232A] focus:ring-1 focus:ring-[#D8232A]"
+          >
+            {companies.map((c) => (
+              <option key={c.id} value={c.id}>
+                🏢 {c.name} ({c.address?.city || 'Factory'})
+              </option>
+            ))}
+          </select>
+        </div>
+      ) : (
+        <div className="p-2.5 bg-red-50/50 border-b border-slate-200 flex items-center gap-2">
+          <div className="w-7 h-7 rounded-lg bg-white border border-red-100 flex items-center justify-center text-[#D8232A] font-bold text-xs shrink-0 shadow-xs">
+            {company?.name?.charAt(0) || 'F'}
+          </div>
+          <div className="overflow-hidden text-left">
+            <p className="text-xs font-bold text-slate-900 truncate leading-tight">{company?.name || 'Factory Workspace'}</p>
+            <p className="text-[10px] text-slate-500 font-medium truncate">{company?.address?.city || 'HQ'}, {company?.address?.state || 'India'}</p>
+          </div>
+        </div>
+      )}
 
       {/* Navigation Items — Permission Gated */}
       <div className="flex-1 overflow-y-auto px-3 py-4 space-y-5 scrollbar-thin">

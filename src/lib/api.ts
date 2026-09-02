@@ -21,10 +21,11 @@ export async function fetchLiveCompanies(): Promise<Company[]> {
       .order('created_at', { ascending: false });
 
     if (error || !data) {
-      console.warn('Live fetch companies error, fallback:', error);
+      console.warn('Live fetch companies error:', error);
       return [];
     }
-    return data as Company[];
+    // Return all customer tenant companies
+    return (data as Company[]).filter((c) => c.gstin !== '27PLATFORM00001');
   } catch (err) {
     console.error('fetchLiveCompanies exception:', err);
     return [];

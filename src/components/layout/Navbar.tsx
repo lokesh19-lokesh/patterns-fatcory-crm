@@ -44,13 +44,13 @@ export const Navbar: React.FC<NavbarProps> = ({ onToggleSidebar }) => {
         {/* Active Branch Tag */}
         <div className="hidden lg:flex items-center gap-2 px-3 py-1 bg-slate-50 border border-slate-200 rounded-md text-xs font-bold text-slate-700">
           <Building2 className="w-3.5 h-3.5 text-[#D8232A]" />
-          <span>HQ - Mumbai Plant</span>
+          <span>{company ? `${company.name.split(' ')[0]} • ${company.address?.city || 'Factory'}` : 'Platform Master HQ'}</span>
         </div>
 
         {/* Multi-Tenant Status Badge */}
         <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-bold">
           <CheckCircle2 className="w-3.5 h-3.5" />
-          <span>Tenant Isolated (RLS)</span>
+          <span>{company?.subscription_plan ? `${company.subscription_plan} Plan` : 'Tenant Isolated (RLS)'}</span>
         </div>
 
         {/* Light / Dark Mode Toggle */}
